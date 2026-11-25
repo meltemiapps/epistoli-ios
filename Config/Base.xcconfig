@@ -1,0 +1,21 @@
+// Base.xcconfig: the single source of every brand string the app binary uses.
+// scripts/brand_check.sh fails CI if a brand string appears in app sources outside this file.
+
+// Brand
+BRAND_DISPLAY_NAME = Επιστολή
+BRAND_APP_STORE_NAME = Επιστολή (Epistoli)
+BRAND_ASCII_NAME = Epistoli
+
+// Identity
+PRODUCT_BUNDLE_IDENTIFIER = com.meltemiapps.epistoli
+BRAND_CLOUDKIT_CONTAINER = iCloud.com.meltemiapps.epistoli
+
+// Platform
+IPHONEOS_DEPLOYMENT_TARGET = 26.0
+TARGETED_DEVICE_FAMILY = 1,2
+SWIFT_VERSION = 6.0
+SWIFT_STRICT_CONCURRENCY = complete
+
+// Versioning
+MARKETING_VERSION = 1.0.0
+CURRENT_PROJECT_VERSION = 1

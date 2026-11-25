@@ -1,0 +1,66 @@
+name: Epistoli
+options:
+  bundleIdPrefix: com.meltemiapps
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+configFiles:
+  Debug: Config/Base.xcconfig
+  Release: Config/Base.xcconfig
+packages:
+  EpistoliCore:
+    path: Packages/EpistoliCore
+targets:
+  Epistoli:
+    type: application
+    platform: iOS
+    sources:
+      - App/Sources
+      - App/Resources
+    dependencies:
+      - package: EpistoliCore
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: $(BRAND_DISPLAY_NAME)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        ITSAppUsesNonExemptEncryption: true
+        NSCameraUsageDescription: "Scan a family member's $(BRAND_DISPLAY_NAME) code to add their key"
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+    settings:
+      base:
+        PRODUCT_NAME: Epistoli
+        GENERATE_INFOPLIST_FILE: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+  EpistoliTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - AppTests
+    dependencies:
+      - target: Epistoli
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.meltemiapps.epistoli.tests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  Epistoli:
+    build:
+      targets:
+        Epistoli: all
+        EpistoliTests: [test]
+    test:
+      targets:
+        - EpistoliTests

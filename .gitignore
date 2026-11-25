@@ -1,0 +1,26 @@
+# Build prompt: never commit
+BUILD_PROMPT_v1.md
+
+# XcodeGen output (regenerate with `xcodegen generate`)
+*.xcodeproj
+App/Info.plist
+
+# Xcode / SwiftPM
+DerivedData/
+build/
+.build/
+.swiftpm/
+xcuserdata/
+*.xcuserstate
+*.xcarchive
+*.ipa
+
+# Local secrets and signing (never commit)
+*.p12
+*.mobileprovision
+*.p8
+.env
+.env.*
+
+# macOS
+.DS_Store
