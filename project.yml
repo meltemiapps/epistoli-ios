@@ -10,6 +10,10 @@ configFiles:
 packages:
   EpistoliCore:
     path: Packages/EpistoliCore
+  SealedCrypto:
+    path: Packages/SealedCrypto
+  SealedStorage:
+    path: Packages/SealedStorage
 targets:
   Epistoli:
     type: application
@@ -19,6 +23,8 @@ targets:
       - App/Resources
     dependencies:
       - package: EpistoliCore
+      - package: SealedCrypto
+      - package: SealedStorage
     info:
       path: App/Info.plist
       properties:

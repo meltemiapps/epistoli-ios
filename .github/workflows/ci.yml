@@ -24,13 +24,9 @@ jobs:
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           scripts/brand_check.sh
-      - name: Test Swift packages
-        run: |
-          for pkg in Packages/*/; do
-            echo "::group::$pkg"
-            swift test --package-path "$pkg"
-            echo "::endgroup::"
-          done
+      - name: Test pure-Swift packages
+        # SealedCrypto and SealedStorage are Apple-only (xcframework, Keychain, Secure Enclave); they run in the macOS job.
+        run: swift test --package-path Packages/EpistoliCore
 
   macos:
     name: macOS (build and test app)
@@ -46,10 +42,21 @@ jobs:
         run: |
           xcodebuild -version
           swift --version
+      - uses: actions/setup-go@d8cbb8045d7f43706b9177cceb36c1f91a6644d5 # v7.1.0
+        with:
+          go-version: "1.27.4"
+          cache-dependency-path: Bridge/go.sum
       - name: Install XcodeGen
         run: brew install xcodegen
-      - name: Generate project
-        run: xcodegen generate
+      - name: Test Go bridge
+        working-directory: Bridge
+        run: go test ./...
+      - name: Bootstrap (GRDB+SQLCipher, GopenPGP xcframework, project)
+        run: scripts/bootstrap.sh
+      - name: Test SealedCrypto
+        run: swift test --package-path Packages/SealedCrypto
+      - name: Test SealedStorage
+        run: swift test --package-path Packages/SealedStorage
       - name: Build and test
         run: |
           UDID=$(xcrun simctl list devices available -j | python3 -I -c '
@@ -62,4 +69,6 @@ jobs:
             -project Epistoli.xcodeproj \
             -scheme Epistoli \
             -destination "id=$UDID" \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGN_IDENTITY=- CODE_SIGN_STYLE=Manual DEVELOPMENT_TEAM=
+          # Ad-hoc ("Sign to Run Locally") signing: no team or certificate, but the simulator grants the
+          # Keychain entitlement the Keychain tests need (unsigned builds get errSecMissingEntitlement).

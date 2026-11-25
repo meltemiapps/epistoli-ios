@@ -13,16 +13,18 @@ v1 is not available in France. See `docs/TRADEMARK_AUDIT.md`.
 
 ## Building
 
+Needs Xcode 26 or later, Go 1.27.4 and XcodeGen:
+
 ```sh
-brew install xcodegen
-xcodegen generate
+brew install go xcodegen
+scripts/bootstrap.sh     # fetch GRDB+SQLCipher, build the GopenPGP xcframework, generate the project
 open Epistoli.xcodeproj
 ```
 
-The `.xcodeproj` is generated and not committed. Brand strings live only in `Config/Base.xcconfig`; `scripts/brand_check.sh` enforces this.
+`Vendor/` and the `.xcodeproj` are generated and not committed. `scripts/build_gopenpgp.sh` builds GopenPGP reproducibly and checks the result against `scripts/gopenpgp.lock`. Brand strings live only in `Config/Base.xcconfig`; `scripts/brand_check.sh` enforces this.
 
 ## Licence
 
-GPL-3.0-only. See `LICENSE`. Contributions need a DCO sign-off; see `CONTRIBUTING.md`.
+GPL-3.0-only. See `LICENSE`. Third-party components and their licences are listed in `docs/THIRD_PARTY_NOTICES.md`. Contributions need a DCO sign-off; see `CONTRIBUTING.md`.
 
 Επιστολή™ and Epistoli™ are trademarks of Meltemi Apps. The GPL covers the code, not the name.
