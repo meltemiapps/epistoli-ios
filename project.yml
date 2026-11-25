@@ -21,6 +21,8 @@ targets:
     sources:
       - App/Sources
       - App/Resources
+      - path: docs/THIRD_PARTY_NOTICES.md
+        buildPhase: resources
     dependencies:
       - package: EpistoliCore
       - package: SealedCrypto
