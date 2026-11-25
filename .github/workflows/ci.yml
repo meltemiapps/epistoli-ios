@@ -52,7 +52,7 @@ jobs:
         working-directory: Bridge
         run: go test ./...
       - name: Bootstrap (GRDB+SQLCipher, GopenPGP xcframework, project)
-        run: scripts/bootstrap.sh
+        run: scripts/bootstrap.sh --strict
       - name: Test SealedCrypto
         run: swift test --package-path Packages/SealedCrypto
       - name: Test SealedStorage

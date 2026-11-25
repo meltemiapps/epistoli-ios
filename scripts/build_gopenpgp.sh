@@ -97,7 +97,7 @@ if [[ "$MODE" == "--record" ]]; then
   echo "build_gopenpgp: recorded checksum for Xcode $xcode_build in scripts/gopenpgp.lock"
 elif [[ -z "$expected" ]]; then
   echo "build_gopenpgp: no checksum recorded for Xcode $xcode_build in scripts/gopenpgp.lock" >&2
-  [[ "$MODE" == "--strict" ]] && exit 1
+  if [[ "$MODE" == "--strict" ]]; then exit 1; fi
 elif [[ "$expected" != "$sum" ]]; then
   echo "build_gopenpgp: CHECKSUM MISMATCH for Xcode $xcode_build: expected $expected, got $sum" >&2
   exit 1
