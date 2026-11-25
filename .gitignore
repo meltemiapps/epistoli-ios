@@ -24,3 +24,7 @@ xcuserdata/
 
 # macOS
 .DS_Store
+
+# Built or fetched by scripts/bootstrap.sh
+Vendor/
+.tools/
