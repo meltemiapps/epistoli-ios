@@ -45,6 +45,19 @@ public final class SecureEnclaveKeyWrapper: KeyWrapper, @unchecked Sendable {
         return try SecureEnclaveKeyWrapper(privateKey: key, isHardwareBacked: false)
     }
 
+    /// Where the stored key with `tag` lives, read back from the Keychain: `kSecAttrTokenIDSecureEnclave`
+    /// for a Secure Enclave key, `nil` for a software key or no key. Used to prove the hardware path on devices.
+    public static func storedKeyTokenID(tag: String) throws -> String? {
+        var q = query(tag: tag)
+        q[kSecReturnAttributes as String] = true
+        q[kSecMatchLimit as String] = kSecMatchLimitOne
+        var result: CFTypeRef?
+        let status = SecItemCopyMatching(q as CFDictionary, &result)
+        if status == errSecItemNotFound { return nil }
+        guard status == errSecSuccess else { throw SealedStorageError.keychain(status) }
+        return (result as? [String: Any])?[kSecAttrTokenID as String] as? String
+    }
+
     /// Deletes the stored key with `tag`. Anything wrapped with it becomes unrecoverable.
     public static func deleteKey(tag: String) {
         SecItemDelete(query(tag: tag) as CFDictionary)

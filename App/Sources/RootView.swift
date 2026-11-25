@@ -5,6 +5,7 @@ import EpistoliCore
 /// The real chats list arrives in section 4.
 struct RootView: View {
     @Environment(\.horizontalSizeClass) private var sizeClass
+    @State private var showingSettings = false
 
     var body: some View {
         if sizeClass == .regular {
@@ -25,5 +26,14 @@ struct RootView: View {
             ContentUnavailableView("No chats yet", systemImage: "bubble.left.and.bubble.right")
         }
         .navigationTitle(Brand.displayName)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Settings", systemImage: "gearshape") { showingSettings = true }
+                    .accessibilityIdentifier("chats.settings")
+            }
+        }
+        .sheet(isPresented: $showingSettings) {
+            SettingsView()
+        }
     }
 }

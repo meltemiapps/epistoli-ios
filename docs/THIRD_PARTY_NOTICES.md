@@ -1,19 +1,21 @@
 # Third-party notices
 
-Epistoli is GPL-3.0-only. It includes the components below, all under licences compatible with GPL-3.0. The BSD licences require their copyright notices to be reproduced with binary distributions. These notices will also be shown in the app (Settings › About › Licences).
+This app is licensed GPL-3.0-only. It includes the components below, all under licences compatible with GPL-3.0. The BSD licences require their copyright notices to be reproduced with binary distributions, so this file is bundled into the app and shown in Settings › Acknowledgements.
 
-| Component | Version | Licence | Used for |
-|---|---|---|---|
-| GopenPGP (ProtonMail/gopenpgp) | 3.5.2 | MIT | OpenPGP API |
-| go-crypto (ProtonMail/go-crypto) | 1.5.2 | BSD-3-Clause | OpenPGP implementation |
-| CIRCL (cloudflare/circl) | 1.6.3 | BSD-3-Clause | Curve25519/Ed25519 primitives |
-| golang.org/x/crypto | 0.41.0 | BSD-3-Clause | Cryptographic primitives |
-| golang.org/x/sys | 0.50.0 | BSD-3-Clause | System calls |
-| Go runtime and standard library | 1.27.4 | BSD-3-Clause | Compiled into the xcframework |
-| gomobile (golang.org/x/mobile) | 2026-11-17 (4769911) | BSD-3-Clause | Generated bindings (build tool; its glue code is linked) |
-| GRDB.swift | 7.12.0 | MIT | SQLite toolkit |
-| SQLCipher Community Edition (SQLCipher.swift) | 4.20.0 | BSD-3-Clause | Encrypted database |
-| SQLite | bundled with SQLCipher | Public domain | Database engine |
+Format (the app parses it, and a test checks it): each table row's Component is exactly the title of a `###` section below, which holds that component's licence text.
+
+| Component | Version | Licence | Source | Used for |
+|---|---|---|---|---|
+| GopenPGP | 3.5.2 | MIT | github.com/ProtonMail/gopenpgp | OpenPGP API |
+| go-crypto | 1.5.2 | BSD-3-Clause | github.com/ProtonMail/go-crypto | OpenPGP implementation |
+| CIRCL | 1.6.3 | BSD-3-Clause | github.com/cloudflare/circl | Curve25519/Ed25519 primitives |
+| golang.org/x/crypto | 0.41.0 | BSD-3-Clause | go.googlesource.com/crypto | Cryptographic primitives |
+| golang.org/x/sys | 0.50.0 | BSD-3-Clause | go.googlesource.com/sys | System calls |
+| Go | 1.27.4 | BSD-3-Clause | go.dev | Runtime and standard library compiled into the PGP framework |
+| gomobile | 2026-11-17 (4769911) | BSD-3-Clause | go.googlesource.com/mobile | Generated Swift/Objective-C bindings |
+| GRDB.swift | 7.12.0 | MIT | github.com/groue/GRDB.swift | SQLite toolkit |
+| SQLCipher Community Edition | 4.20.0 | BSD-3-Clause | github.com/sqlcipher/SQLCipher.swift | Encrypted database |
+| SQLite | bundled with SQLCipher | Public domain | sqlite.org | Database engine |
 
 ## Licence texts
 
@@ -306,4 +308,15 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+```
+
+### SQLite
+
+```text
+The author disclaims copyright to this source code. In place of
+a legal notice, here is a blessing:
+
+    May you do good and not evil.
+    May you find forgiveness for yourself and forgive others.
+    May you share freely, never taking more than you give.
 ```

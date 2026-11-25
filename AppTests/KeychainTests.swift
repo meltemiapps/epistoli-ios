@@ -42,6 +42,20 @@ import SealedStorage
         #endif
     }
 
+    /// Checkpoint E: on a real device this must prove the database key is wrapped by a Secure Enclave key.
+    @Test func databaseKeyIsWrappedBySecureEnclaveKeyOnDevice() throws {
+        let tag = "tests.se.\(UUID().uuidString)"
+        defer { SecureEnclaveKeyWrapper.deleteKey(tag: tag); try? store.delete(DatabaseKeyProvider.account) }
+        let key = try DatabaseKeyProvider(store: store, wrapper: try SecureEnclaveKeyWrapper(tag: tag)).key()
+        #expect(key.count == 32)
+        let tokenID = try SecureEnclaveKeyWrapper.storedKeyTokenID(tag: tag)
+        #if targetEnvironment(simulator)
+        #expect(tokenID == nil, "simulator uses the software fallback")
+        #else
+        #expect(tokenID == kSecAttrTokenIDSecureEnclave as String, "device must use the Secure Enclave, got \(tokenID ?? "software key")")
+        #endif
+    }
+
     @Test func identityKeyRoundTripsThroughKeychain() throws {
         let identity = try SealedCrypto.generateIdentity(name: "test")
         try store.set(identity.data, for: "identity")
