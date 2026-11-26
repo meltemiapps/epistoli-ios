@@ -138,6 +138,50 @@ import Testing
         #expect(r.outcome == .verified && !r.contact.needsKeyChangeWarning && r.contact.verification == .verified)
     }
 
+    /// Security: accepting a changed key from a pasted code keeps the contact Unverified with the
+    /// key-change banner, through any number of further pastes, until the camera scans the key.
+    @Test func pastedKeyChangeStaysUnverifiedUntilCameraScan() throws {
+        let verified = try apply(offer("aaaa", .scannedInPerson), to: nil, at: t0).contact
+        #expect(verified.verification == .verified)
+
+        var r = try apply(offer("bbbb", .receivedOtherwise), to: verified, at: t1)
+        #expect(r.outcome == .keyChanged(warning: true))
+        #expect(r.contact.verification == .unverified && r.contact.needsKeyChangeWarning)
+
+        // Pasting the same new key again changes nothing.
+        r = try apply(offer("bbbb", .receivedOtherwise), to: r.contact, at: t1)
+        #expect(r.outcome == .unchanged)
+        #expect(r.contact.verification == .unverified && r.contact.needsKeyChangeWarning)
+
+        // Pasting the old, once-verified key back is another change, not a restore.
+        r = try apply(offer("aaaa", .receivedOtherwise), to: r.contact, at: t1)
+        #expect(r.outcome == .keyChanged(warning: true))
+        #expect(r.contact.verification == .unverified && r.contact.needsKeyChangeWarning)
+        #expect(r.contact.keys.map(\.fingerprint) == ["aaaa", "bbbb", "aaaa"])
+
+        // Only the camera restores Verified and clears the banner.
+        r = try apply(offer("aaaa", .scannedInPerson), to: r.contact, at: t1)
+        #expect(r.outcome == .verified)
+        #expect(r.contact.verification == .verified && !r.contact.needsKeyChangeWarning)
+    }
+
+    /// Security: a camera scan of a key different from the pending one also ends the warning,
+    /// because the camera scan is itself the in-person check.
+    @Test func cameraScanOfAnotherKeyRestoresVerified() throws {
+        let first = try apply(offer("aaaa", .scannedInPerson), to: nil, at: t0).contact
+        let changed = try apply(offer("bbbb", .receivedOtherwise), to: first, at: t1).contact
+        let r = try apply(offer("cccc", .scannedInPerson), to: changed, at: t1)
+        #expect(r.outcome == .keyChanged(warning: false))
+        #expect(r.contact.verification == .verified && !r.contact.needsKeyChangeWarning)
+    }
+
+    @Test func pendingKeyChangeIsNeverVerified() {
+        let inconsistent = Contact(displayName: "Maria", address: maria,
+                                   keys: [ContactKey(fingerprint: "aaaa", publicKey: Data(), source: .scannedInPerson, firstSeen: t0)],
+                                   keyChangedAt: t1)
+        #expect(inconsistent.verification == .unverified)
+    }
+
     @Test func newKeyScannedInPersonNeedsNoWarning() throws {
         let first = try apply(offer("aaaa", .scannedInPerson), to: nil, at: t0).contact
         let r = try apply(offer("bbbb", .scannedInPerson), to: first, at: t1)

@@ -42,8 +42,9 @@ public struct Contact: Equatable, Sendable, Identifiable {
     public var address: TransportAddress
     /// Key history, oldest first. Never empty; the last element is the current key.
     public var keys: [ContactKey]
-    /// Set when the key changed and the new key has not been scanned in person yet.
-    /// While set, the app warns before sending.
+    /// Set when the key changed and the new key has not been scanned in person yet. Only a camera
+    /// scan of the current key clears it (`ContactRules`); accepting a pasted key never does.
+    /// While set, the contact is Unverified and every chat with them shows the key-change banner.
     public var keyChangedAt: Date?
 
     public init(id: UUID = UUID(), displayName: String, address: TransportAddress, keys: [ContactKey], keyChangedAt: Date? = nil) {
@@ -57,8 +58,11 @@ public struct Contact: Equatable, Sendable, Identifiable {
 
     public var currentKey: ContactKey { keys[keys.count - 1] }
 
+    /// Verified only when the current key was scanned in person and no key change is pending.
+    /// The second condition is redundant with `ContactRules` today; it keeps a pending key change
+    /// from ever showing as Verified if a future code path sets the two fields inconsistently.
     public var verification: VerificationState {
-        currentKey.source == .scannedInPerson ? .verified : .unverified
+        currentKey.source == .scannedInPerson && keyChangedAt == nil ? .verified : .unverified
     }
 
     public var needsKeyChangeWarning: Bool { keyChangedAt != nil }
