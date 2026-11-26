@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyLists-1.0.dtd">
+<!--
+  Prepared for section 5, NOT used by the build yet. Turning it on means registering the app ID and
+  container with Apple and signing, which the owner does (docs/CLOUDKIT.md, "Turning it on"):
+  set CODE_SIGN_ENTITLEMENTS = App/Epistoli.entitlements and TRANSPORT_KIND = cloudkit.
+-->
+<plist version="1.0">
+<dict>
+	<key>aps-environment</key>
+	<string>development</string>
+	<key>com.apple.developer.icloud-container-identifiers</key>
+	<array>
+		<string>$(BRAND_CLOUDKIT_CONTAINER)</string>
+	</array>
+	<key>com.apple.developer.icloud-services</key>
+	<array>
+		<string>CloudKit</string>
+	</array>
+</dict>
+</plist>

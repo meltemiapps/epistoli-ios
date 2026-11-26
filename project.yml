@@ -43,6 +43,13 @@ targets:
       properties:
         CFBundleDisplayName: $(BRAND_DISPLAY_NAME)
         BrandASCIIName: $(BRAND_ASCII_NAME)
+        CloudKitContainer: $(BRAND_CLOUDKIT_CONTAINER)
+        TransportKind: $(TRANSPORT_KIND)
+        UIBackgroundModes:
+          - fetch
+          - remote-notification
+        BGTaskSchedulerPermittedIdentifiers:
+          - $(PRODUCT_BUNDLE_IDENTIFIER).refresh
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         ITSAppUsesNonExemptEncryption: true

@@ -91,6 +91,7 @@ struct ChatView: View {
             }
             .animation(.smooth(duration: 0.25), value: attaching)
             .appScreen()
+            .task { await model.alerts.chatOpened() }
             .photosPicker(isPresented: $pickingPhoto, selection: $photo, matching: .any(of: [.images, .videos]))
             .onChange(of: photo) { _, item in
                 guard let item else { return }

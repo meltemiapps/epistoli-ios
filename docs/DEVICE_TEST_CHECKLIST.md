@@ -24,5 +24,5 @@ Things that cannot be proven in the simulator or CI. Each item names the evidenc
 - [ ] **Attachments from the real pickers.** In a chat, + › Photos, + › Files and + › iCloud Drive (signed in to iCloud): each file arrives on the other phone with the right name, size and "from …" source, and opens in Quick Look. A file in iCloud Drive must say "from iCloud Drive", a file in On My iPhone "from Files". A file over 25 MB is refused with a message.
 - [ ] **Close the photo preview by hand.** Open a received photo in a chat: Quick Look shows it full screen. Close it with its X button (and with a swipe down): the chat comes back with the composer and PGP chip working. UI tests can't reach Quick Look's close button, so Checkpoint D only checks that the photo opens.
 - [ ] **Key-change warning before sending, in a chat.** With the key-change banner showing in a chat, the first send asks "Send anyway"; Cancel keeps the draft unsent.
-- [ ] Two-device CloudKit message exchange (section 5).
+- [ ] **Two-device CloudKit exchange (section 5).** Follow the device test plan in `docs/CLOUDKIT.md`: the iPhone as chat owner and the iPad as participant, on two different Apple IDs.
 - [ ] Notification permission is asked when a chat is first opened, not at launch. Alerts say only "New message" (section 5).

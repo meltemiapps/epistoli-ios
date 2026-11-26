@@ -1,4 +1,5 @@
 import SwiftUI
+import Messaging
 
 /// First launch: choose the name shown in "My code" and create the identity key.
 /// No demo screen of its own: it uses the chats list header and the demo's form card style.
@@ -69,11 +70,15 @@ struct OnboardingView: View {
     private func create() {
         guard !working else { return }
         working = true
-        defer { working = false }
-        do {
-            try model.createIdentity(name: name)
-        } catch {
-            self.error = "Couldn't create your key: \(error)"
+        Task {
+            defer { working = false }
+            do {
+                try await model.createIdentity(name: name)
+            } catch TransportError.accountUnavailable {
+                error = "Sign in to iCloud in the Settings app first: your messages travel through your own iCloud."
+            } catch {
+                self.error = "Couldn't create your key: \(error)"
+            }
         }
     }
 }

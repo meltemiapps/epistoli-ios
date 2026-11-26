@@ -128,3 +128,10 @@ private let nikos = TransportAddress(rawValue: "loopback:" + String(repeating: "
         #expect(LoopbackLayout.envelopeID(fromFileName: "x.json") == nil)
     }
 }
+
+@Suite struct InvitationTests {
+    @Test func roundTrip() throws {
+        let i = Invitation(from: maria, conversation: ConversationID.direct(maria, nikos)!, link: "https://www.icloud.com/share/0abc")
+        #expect(try Invitation.decode(i.encoded()) == i)
+    }
+}

@@ -28,3 +28,6 @@ xcuserdata/
 # Built or fetched by scripts/bootstrap.sh
 Vendor/
 .tools/
+
+# Per-machine signing settings (docs/CLOUDKIT.md)
+Config/Local.xcconfig

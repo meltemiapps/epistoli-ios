@@ -117,4 +117,16 @@ Messages are shown sorted by `(lamport, sender address, id)`. Every phone sorts 
 - Writers always write to `tmp/` and then rename, so a reader never sees half a file.
 - The receiver polls its mailbox every second, processes each envelope, and deletes it.
 - Simulators share `<root>` with the launch argument `-loopback.root <absolute path>` (`scripts/checkpoint_d.sh`). Without it, the root is the app's own Application Support folder, and messages stay on that phone.
-- The loopback transport has no TLS, no access control and no blob clean-up. It exists for development only. Section 5 replaces it with CloudKit: one CKShare per conversation, with a push subscription used only as a hint to fetch.
+- The loopback transport has no TLS, no access control and no blob clean-up. It exists for development only.
+
+## Invitations
+
+A transport that keeps each conversation in a shared place (CloudKit: a zone with a CKShare) tells new members where it is with an `Invitation`.
+- **Fields:** `{v: 1, from, conversation, link}`, sent as a `pgp` envelope encrypted to that member alone and signed by the sender.
+- **Checks on receipt:** the envelope must be `pgp` and from a contact, signed with their current key, and `from` must match. A direct conversation must be between the sender and us.
+- **Joining** gives access to ciphertext only. Every message in the conversation is still checked as above.
+- **On loopback** invitations aren't needed: every mailbox is reachable.
+
+## CloudKit (section 5)
+
+See `docs/CLOUDKIT.md` for the zones and shares, record types, invitations in the public database, alerts, and the steps for deploying to Production.

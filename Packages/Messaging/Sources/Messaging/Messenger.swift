@@ -37,6 +37,8 @@ public struct ReceiveReport: Equatable, Sendable {
     /// Envelopes left in the mailbox: from someone who isn't a contact yet, or whose attachment
     /// hasn't arrived. They are tried again on the next pass.
     public var waiting = 0
+    /// Conversations joined from invitations (CloudKit shares accepted).
+    public var joined = 0
 
     public init() {}
 }
@@ -86,15 +88,15 @@ public final class Messenger: Sendable {
     // MARK: Sending
 
     @discardableResult
-    public func send(text: String, in id: ConversationID) throws -> ChatMessage {
+    public func send(text: String, in id: ConversationID) async throws -> ChatMessage {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { throw MessagingError.emptyMessage }
-        return try send(.text(trimmed), in: id)
+        return try await send(.text(trimmed), in: id)
     }
 
     /// Encrypts the attachment on this phone (PGP on), uploads it as a blob and sends a message naming it.
     @discardableResult
-    public func send(attachment: OutgoingAttachment, in id: ConversationID) throws -> ChatMessage {
+    public func send(attachment: OutgoingAttachment, in id: ConversationID) async throws -> ChatMessage {
         guard attachment.data.count <= AttachmentLimits.maxBytes else { throw MessagingError.attachmentTooLarge }
         let conversation = try conversation(id)
         let recipients = try recipients(of: conversation)
@@ -102,21 +104,22 @@ public final class Messenger: Sendable {
         let blob = conversation.pgp
             ? try SealedCrypto.encrypt(attachment.data, to: recipients.map(\.key), signedBy: identity.privateKey)
             : attachment.data
-        try transport.putBlob(blob, id: blobID)
+        try await transport.prepare(id, recipients: recipients.map(\.address), seal: invitationSealer(for: recipients))
+        try await transport.putBlob(blob, id: blobID, conversation: id)
         let name = String(attachment.name.prefix(200))
         let info = AttachmentInfo(blob: blobID, name: name.isEmpty ? "attachment" : name, mime: attachment.mime,
                                   size: attachment.data.count, source: attachment.source, blobSHA256: Self.sha256(blob))
-        return try send(.attachment(info), in: id, attachmentData: attachment.data)
+        return try await send(.attachment(info), in: id, attachmentData: attachment.data)
     }
 
     /// Turns PGP on or off for the chat and tells the other members. The notice itself is always
     /// PGP-encrypted, so turning PGP off doesn't leak anything.
     @discardableResult
-    public func setPGP(_ on: Bool, in id: ConversationID) throws -> ChatMessage {
-        try send(.pgpSetting(on: on), in: id)
+    public func setPGP(_ on: Bool, in id: ConversationID) async throws -> ChatMessage {
+        try await send(.pgpSetting(on: on), in: id)
     }
 
-    private func send(_ content: MessageContent, in id: ConversationID, attachmentData: Data? = nil) throws -> ChatMessage {
+    private func send(_ content: MessageContent, in id: ConversationID, attachmentData: Data? = nil) async throws -> ChatMessage {
         let conversation = try conversation(id)
         let recipients = try recipients(of: conversation)
         let pgp: Bool
@@ -126,9 +129,8 @@ public final class Messenger: Sendable {
         let payload = Payload(id: message.id, from: identity.address, conversation: id,
                               group: try groupInfo(for: conversation), lamport: message.lamport, sentAt: message.sentAt, content: content)
         let envelope = try seal(payload, pgp: pgp, to: recipients.map(\.key))
-        for recipient in recipients {
-            try transport.deliver(envelope, id: message.id, to: recipient.address)
-        }
+        try await transport.prepare(id, recipients: recipients.map(\.address), seal: invitationSealer(for: recipients))
+        try await transport.deliver(envelope, id: message.id, conversation: id, to: recipients.map(\.address))
         try store.insert(message, attachment: attachmentData, now: now())
         return message
     }
@@ -141,6 +143,18 @@ public final class Messenger: Sendable {
             : Envelope(id: payload.id, from: identity.address, mode: .signed, body: body,
                        signature: try SealedCrypto.sign(body, with: identity.privateKey))
         return try envelope.encoded()
+    }
+
+    /// Seals an invitation for one recipient: encrypted to them alone and signed by us.
+    private func invitationSealer(for recipients: [(address: TransportAddress, key: PGPPublicKey)])
+        -> @Sendable (TransportAddress, Invitation) throws -> Data {
+        let keys = Dictionary(recipients.map { ($0.address, $0.key) }, uniquingKeysWith: { a, _ in a })
+        let me = identity
+        return { address, invitation in
+            guard let key = keys[address], invitation.from == me.address else { throw MessagingError.noRecipients }
+            let body = try SealedCrypto.encrypt(invitation.encoded(), to: [key], signedBy: me.privateKey)
+            return try Envelope(id: UUID(), from: me.address, mode: .pgp, body: body).encoded()
+        }
     }
 
     private func conversation(_ id: ConversationID) throws -> Conversation {
@@ -171,24 +185,38 @@ public final class Messenger: Sendable {
 
     // MARK: Receiving
 
-    private enum Outcome { case received, duplicate, rejected, waiting }
+    private enum Outcome { case received, joined, duplicate, rejected, waiting }
 
     /// One pass over our mailbox. Safe to call often; envelopes already processed are skipped.
     @discardableResult
-    public func receive() throws -> ReceiveReport {
+    public func receive() async throws -> ReceiveReport {
+        var report = try await receivePass()
+        // Joining a conversation makes its messages fetchable: fetch them now, not on the next pass.
+        if report.joined > 0 {
+            let more = try await receivePass()
+            report.received += more.received
+            report.rejected += more.rejected
+            report.joined += more.joined
+            report.waiting = more.waiting
+        }
+        return report
+    }
+
+    private func receivePass() async throws -> ReceiveReport {
         var report = ReceiveReport()
-        for item in try transport.inbox(for: identity.address) {
+        for item in try await transport.inbox() {
             let outcome: Outcome
             do {
-                outcome = try process(item)
+                outcome = item.kind == .invitation ? try await processInvitation(item) : try await process(item)
             } catch {
                 Self.log.error("Rejected envelope \(item.id.uuidString, privacy: .public): \(String(describing: error), privacy: .public)")
                 outcome = .rejected
             }
             switch outcome {
-            case .received: report.received += 1; try transport.remove(item.id, for: identity.address)
-            case .duplicate: try transport.remove(item.id, for: identity.address)
-            case .rejected: report.rejected += 1; try transport.reject(item.id, for: identity.address)
+            case .received: report.received += 1; try await transport.remove(item)
+            case .joined: report.joined += 1; try await transport.remove(item)
+            case .duplicate: try await transport.remove(item)
+            case .rejected: report.rejected += 1; try await transport.reject(item)
             case .waiting: report.waiting += 1
             }
         }
@@ -197,11 +225,34 @@ public final class Messenger: Sendable {
 
     /// Puts rejected envelopes back for another try: after a contact's new key is accepted, their
     /// messages signed with it can be read.
-    public func retryRejected() throws {
-        try transport.retryRejected(for: identity.address)
+    public func retryRejected() async throws {
+        try await transport.retryRejected()
     }
 
-    private func process(_ item: InboxItem) throws -> Outcome {
+    /// An invitation must be a `pgp` envelope from a contact, signed with their current key, for a
+    /// conversation that includes us. Joining only gives access to ciphertext: every message in the
+    /// conversation is still checked by `process` like any other.
+    private func processInvitation(_ item: InboxItem) async throws -> Outcome {
+        let envelope = try Envelope.decode(item.data)
+        guard envelope.mode == .pgp else { return .rejected }
+        guard let sender = try contacts.all().first(where: { $0.address == envelope.from }) else { return .waiting }
+        let body = try SealedCrypto.decrypt(envelope.body, with: identity.privateKey,
+                                            verifyingSender: try PGPPublicKey(data: sender.currentKey.publicKey))
+        let invitation = try Invitation.decode(body)
+        guard invitation.v == Invitation.version, invitation.from == envelope.from else { return .rejected }
+        switch invitation.conversation.kind {
+        case .direct:
+            guard Set(invitation.conversation.directMembers) == [identity.address, sender.address] else { return .rejected }
+        case .group:
+            break   // membership is checked on every message in it
+        case .channel, .assistant:
+            return .rejected
+        }
+        try await transport.join(invitation)
+        return .joined
+    }
+
+    private func process(_ item: InboxItem) async throws -> Outcome {
         let envelope = try Envelope.decode(item.data)
         guard envelope.id == item.id else { return .rejected }
         if try store.hasMessage(envelope.id) { return .duplicate }
@@ -229,7 +280,7 @@ public final class Messenger: Sendable {
             guard !text.isEmpty else { return .rejected }
         case .attachment(let info):
             guard info.size <= AttachmentLimits.maxBytes else { return .rejected }
-            guard let blob = try transport.blob(info.blob) else { return .waiting }
+            guard let blob = try await transport.blob(info.blob, route: item.route) else { return .waiting }
             guard Self.sha256(blob) == info.blobSHA256 else { return .rejected }
             let data = envelope.mode == .pgp
                 ? try SealedCrypto.decrypt(blob, with: identity.privateKey, verifyingSender: senderKey)

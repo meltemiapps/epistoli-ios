@@ -309,3 +309,25 @@ public struct LoopbackLayout: Sendable {
             && address.value.allSatisfy { ("0"..."9").contains($0) || ("a"..."f").contains($0) }
     }
 }
+
+/// Tells a member where a conversation lives, so their phone can join it (CloudKit: the share's
+/// URL). Sent as a `pgp` envelope to that member only: the transport sees only ciphertext.
+public struct Invitation: Codable, Equatable, Sendable {
+    public static let version = 1
+
+    public var v: Int
+    public var from: TransportAddress
+    public var conversation: ConversationID
+    /// Transport-specific, for example a CKShare URL.
+    public var link: String
+
+    public init(from: TransportAddress, conversation: ConversationID, link: String) {
+        self.v = Self.version
+        self.from = from
+        self.conversation = conversation
+        self.link = link
+    }
+
+    public func encoded() throws -> Data { try WireJSON.encoder.encode(self) }
+    public static func decode(_ data: Data) throws -> Invitation { try WireJSON.decoder.decode(Invitation.self, from: data) }
+}

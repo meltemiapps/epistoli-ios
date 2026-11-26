@@ -64,11 +64,17 @@ public struct IdentityStore: Sendable {
                         privateKey: privateKey, publicKey: try SealedCrypto.publicKey(of: privateKey))
     }
 
-    /// Creates a new key pair and a new address. Replaces any existing identity.
+    /// Creates a new key pair and a new loopback address (section 4). Replaces any existing identity.
     public func create(displayName: String) throws -> Identity {
+        try create(displayName: displayName, address: try Self.newLoopbackAddress())
+    }
+
+    /// Creates a new key pair for a given address, for example `icloud:<user record name>` from
+    /// the CloudKit transport (section 5). Replaces any existing identity.
+    public func create(displayName: String, address: TransportAddress) throws -> Identity {
         let name = displayName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !name.isEmpty else { throw IdentityError.emptyName }
-        return try save(name: name, address: try Self.newLoopbackAddress(), privateKey: SealedCrypto.generateIdentity(name: Self.keyUserID))
+        return try save(name: name, address: address, privateKey: SealedCrypto.generateIdentity(name: Self.keyUserID))
     }
 
     /// A new key pair for the same name and address: what a contact sees when someone gets a new

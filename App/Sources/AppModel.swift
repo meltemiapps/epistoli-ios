@@ -48,16 +48,30 @@ final class AppModel {
     }
 
     private func makeMessenger() {
-        guard let env, let identity else { messenger = nil; return }
-        messenger = Messenger(identity: identity, contacts: env.contacts, store: env.conversations, transport: env.transport)
+        guard let env, let identity, let transport = try? env.transport(for: identity.address) else { messenger = nil; return }
+        messenger = Messenger(identity: identity, contacts: env.contacts, store: env.conversations, transport: transport)
         reloadConversations()
+        if let cloud = transport as? CloudKitTransport {
+            // "New message" pushes; only a hint to fetch, so a failure here just means fewer alerts.
+            Task.detached { try? await cloud.subscribeToAlerts() }
+        }
     }
+
+    var transportKind: TransportKind { env?.transportKind ?? .loopback }
+
+    /// Asks for alert permission the first time a chat is opened (CloudKit only).
+    @ObservationIgnored lazy var alerts = AlertPermission(canPush: transportKind.hasPushAlerts)
 
     // MARK: Identity
 
-    func createIdentity(name: String) throws {
+    /// With CloudKit, the address is our iCloud user, so this needs iCloud to be signed in.
+    func createIdentity(name: String) async throws {
         guard let env else { return }
-        identity = try env.identities.create(displayName: name)
+        if let address = try await env.newAddress() {
+            identity = try env.identities.create(displayName: name, address: address)
+        } else {
+            identity = try env.identities.create(displayName: name)
+        }
         phase = .ready
         makeMessenger()
         startReceiving()
@@ -112,7 +126,7 @@ final class AppModel {
         }
         try reloadContacts()
         // A new or changed key may make set-aside messages readable.
-        try? messenger?.retryRejected()
+        if let messenger { Task.detached { try? await messenger.retryRejected() } }
         return contacts.first { $0.id == result.contact.id } ?? result.contact
     }
 
@@ -141,22 +155,24 @@ final class AppModel {
 
     // MARK: Chats
 
-    /// Polls our mailbox every second while the app runs. Section 5 replaces this with CloudKit
-    /// fetches on launch, on push hints, in the background and on pull-to-refresh.
+    /// Fetches on launch and then while the app is open: every second from the loopback folder,
+    /// every 30 seconds from CloudKit. CloudKit also fetches on a push ("New message" is only a
+    /// hint), in background refresh and on pull-to-refresh.
     func startReceiving() {
         guard receiving == nil else { return }
+        let interval: Duration = transportKind == .cloudkit ? .seconds(30) : .seconds(1)
         receiving = Task { [weak self] in
             while !Task.isCancelled {
                 await self?.receiveNow()
-                try? await Task.sleep(for: .seconds(1))
+                try? await Task.sleep(for: interval)
             }
         }
     }
 
     func receiveNow() async {
         guard let messenger else { return }
-        let report = await Task.detached { try? messenger.receive() }.value
-        if let report, report.received > 0 {
+        let report = await Task.detached { try? await messenger.receive() }.value
+        if let report, report.received > 0 || report.joined > 0 {
             try? reloadContacts()   // a group can introduce new members
             reloadConversations()
         }
@@ -221,21 +237,23 @@ final class AppModel {
     }
 
     func send(text: String, in id: ConversationID) async {
-        await perform { try $0.send(text: text, in: id) }
+        await perform { try await $0.send(text: text, in: id) }
     }
 
     func send(attachment: OutgoingAttachment, in id: ConversationID) async {
-        await perform { try $0.send(attachment: attachment, in: id) }
+        await perform { try await $0.send(attachment: attachment, in: id) }
     }
 
     func setPGP(_ on: Bool, in id: ConversationID) async {
-        await perform { try $0.setPGP(on, in: id) }
+        await perform { try await $0.setPGP(on, in: id) }
     }
 
     /// Encrypting can take a moment for a large attachment, so it runs off the main thread.
-    private func perform(_ action: @escaping @Sendable (Messenger) throws -> ChatMessage) async {
+    private func perform(_ action: @escaping @Sendable (Messenger) async throws -> ChatMessage) async {
         guard let messenger else { return }
-        let result = await Task.detached { Result { try action(messenger) } }.value
+        let result: Result<ChatMessage, any Error> = await Task.detached {
+            do { return .success(try await action(messenger)) } catch { return .failure(error) }
+        }.value
         if case .failure(let error) = result { sendError = Self.describe(error) } else { sendError = nil }
         reloadConversations()
     }
@@ -245,7 +263,10 @@ final class AppModel {
         case .attachmentTooLarge: "That file is too large. Attachments can be up to \(AttachmentLimits.maxBytes / 1_048_576) MB."
         case .noRecipients: "No one in this chat can receive messages: they're no longer your contacts."
         case .groupTooLarge: "Groups can have up to \(ConversationLimits.maxGroupMembers) people, including you."
-        case .emptyMessage, .unknownConversation, nil: "Couldn't send: \(error.localizedDescription)"
+        case .emptyMessage, .unknownConversation, nil:
+            (error as? TransportError) == .accountUnavailable
+                ? "Sign in to iCloud in Settings to send and receive messages."
+                : "Couldn't send: \(error.localizedDescription)"
         }
     }
 }

@@ -10,6 +10,11 @@ BRAND_ASCII_NAME = Epistoli
 PRODUCT_BUNDLE_IDENTIFIER = com.meltemiapps.epistoli
 BRAND_CLOUDKIT_CONTAINER = iCloud.com.meltemiapps.epistoli
 
+// Transport: loopback (section 4, a shared folder for simulators) or cloudkit (section 5).
+// cloudkit needs a signed build with the iCloud and Push Notifications capabilities
+// (App/Epistoli.entitlements, docs/CLOUDKIT.md "Turning it on"); until then builds use loopback.
+TRANSPORT_KIND = loopback
+
 // Platform
 IPHONEOS_DEPLOYMENT_TARGET = 26.0
 TARGETED_DEVICE_FAMILY = 1,2
@@ -19,3 +24,7 @@ SWIFT_STRICT_CONCURRENCY = complete
 // Versioning
 MARKETING_VERSION = 1.0.0
 CURRENT_PROJECT_VERSION = 1
+
+// Per-machine settings for signed builds (team, entitlements, TRANSPORT_KIND = cloudkit).
+// Optional and gitignored: see docs/CLOUDKIT.md, "Turning it on". CI never has it.
+#include? "Local.xcconfig"
