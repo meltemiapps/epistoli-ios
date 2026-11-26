@@ -33,10 +33,8 @@ jobs:
 
   macos:
     name: macOS (build and test app)
-    # Standard GitHub-hosted runner, free for public repositories. Do not change to a -large/-xlarge runner (billed),
-    # and never to a self-hosted runner (public repo). Intel because macos-26 (arm64) jobs repeatedly found no
-    # runner (capacity); macos-26-intel has the same Xcode 26.6 path (actions/runner-images macos-26-Readme.md).
-    runs-on: macos-26-intel
+    # Standard GitHub-hosted runner, free for public repositories. Do not change to a -large/-xlarge runner (billed).
+    runs-on: macos-26
     timeout-minutes: 30
     env:
       # Pinned so a runner image update can't change the toolchain silently. Xcode 26.6 = Swift 6.3.3.
