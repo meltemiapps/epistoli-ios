@@ -32,7 +32,8 @@ import SealedStorage
             directory = support.appendingPathComponent("tests-\(id)", isDirectory: true)
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             env = try AppEnvironment.make(service: service, wrapperTag: tag,
-                                          databaseURL: directory.appendingPathComponent("store.sqlite"))
+                                          databaseURL: directory.appendingPathComponent("store.sqlite"),
+                                          loopbackRoot: directory.appendingPathComponent("Loopback"))
             me = try env.identities.create(displayName: "Μαρία")
         }
 
@@ -60,7 +61,8 @@ import SealedStorage
         let wrapper = try SecureEnclaveKeyWrapper(tag: f.tag)
         #expect(try wrapper.unwrap(stored) == f.me.privateKey.data)
         let reloaded = try #require(try AppEnvironment.make(service: f.service, wrapperTag: f.tag,
-                                                            databaseURL: f.directory.appendingPathComponent("store.sqlite")).identities.load())
+                                                            databaseURL: f.directory.appendingPathComponent("store.sqlite"),
+                                                            loopbackRoot: f.directory.appendingPathComponent("Loopback")).identities.load())
         #expect(reloaded.fingerprint == f.me.fingerprint)
 
         let tokenID = try SecureEnclaveKeyWrapper.storedKeyTokenID(tag: f.tag)

@@ -1,8 +1,8 @@
 /// Features the UI may only mention once they ship. Copy that describes a feature reads these, so
 /// nothing promises what this build can't do. AppTests/PrivacyCopyTests checks both states.
 enum Features {
-    // TODO(section 4): set to true when the per-chat PGP toggle ships.
-    static let perChatPGPToggle = false
+    /// The PGP chip in every chat header (section 4).
+    static let perChatPGPToggle = true
     // TODO(build 2): set to true when Google Drive transport ships.
     static let googleDrive = false
 }

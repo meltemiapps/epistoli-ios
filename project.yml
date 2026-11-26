@@ -16,6 +16,8 @@ packages:
     path: Packages/SealedStorage
   KeyExchange:
     path: Packages/KeyExchange
+  Messaging:
+    path: Packages/Messaging
   GRDB:
     path: Vendor/GRDB.swift
 targets:
@@ -33,6 +35,7 @@ targets:
       - package: SealedStorage
       - package: KeyExchange
         product: KeyExchange
+      - package: Messaging
       - package: GRDB
         product: GRDB
     info:

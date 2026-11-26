@@ -20,4 +20,5 @@ Pull requests from outside contributors are not accepted yet. They will be accep
 
 - No analytics, crash reporting, ad SDKs or tracking of any kind.
 - Never commit secrets, keys or signing material.
+- Never put an Apple ID or other email address, a device name, serial number or UDID in the repo, commits or PR text. Keep device logs and screenshots in `build/` (gitignored). Turn on the pre-push scan once per clone: `git config core.hooksPath .githooks` (it runs `scripts/secret_scan.sh`).
 - Do not hard-code brand strings; run `scripts/brand_check.sh`.
