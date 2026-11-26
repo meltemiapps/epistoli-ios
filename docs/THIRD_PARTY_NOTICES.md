@@ -9,7 +9,7 @@ Format (the app parses it, and a test checks it): each table row's Component is 
 | GopenPGP | 3.5.2 | MIT | github.com/ProtonMail/gopenpgp | OpenPGP API |
 | go-crypto | 1.5.2 | BSD-3-Clause | github.com/ProtonMail/go-crypto | OpenPGP implementation |
 | CIRCL | 1.6.3 | BSD-3-Clause | github.com/cloudflare/circl | Curve25519/Ed25519 primitives |
-| golang.org/x/crypto | 0.41.0 | BSD-3-Clause | go.googlesource.com/crypto | Cryptographic primitives |
+| golang.org/x/crypto | 0.59.0 | BSD-3-Clause | go.googlesource.com/crypto | Cryptographic primitives |
 | golang.org/x/sys | 0.50.0 | BSD-3-Clause | go.googlesource.com/sys | System calls |
 | Go | 1.27.4 | BSD-3-Clause | go.dev | Runtime and standard library compiled into the PGP framework |
 | gomobile | 2026-11-17 (4769911) | BSD-3-Clause | go.googlesource.com/mobile | Generated Swift/Objective-C bindings |
