@@ -151,7 +151,9 @@ struct ChatsListView: View {
     }
 }
 
+/// Round 44 pt button filled with the accent (demo: QR and Settings on the chats list).
 struct RoundGlassButton: View {
+    @Environment(Appearance.self) private var appearance
     let systemImage: String
     let label: String
     let action: () -> Void
@@ -160,7 +162,8 @@ struct RoundGlassButton: View {
         Button(action: action) {
             Image(systemName: systemImage).font(.system(size: 20, weight: .regular))
                 .frame(width: 44, height: 44)
-                .glass(22, tint: 0.18)
+                .background(appearance.accentFill, in: .circle)
+                .overlay(Circle().strokeBorder(.white.opacity(0.4), lineWidth: 1))
         }
         .buttonStyle(.plain)
         .accessibilityLabel(label)

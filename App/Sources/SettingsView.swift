@@ -130,14 +130,14 @@ struct AppearanceView: View {
                 PhotosPicker(selection: $pickedPhoto, matching: .images, photoLibrary: .shared()) {
                     Text(photoLabel)
                 }
-                .buttonStyle(SoftButtonStyle())
+                .buttonStyle(GlassButtonStyle())
                 .accessibilityIdentifier("appearance.photos")
                 if let photoError { Text(photoError).font(.system(size: 13, weight: .semibold)) }
             }
 
             Card(spacing: 10) {
                 Text("Privacy").font(.system(size: 16, weight: .semibold))
-                Text("PGP for new chats: on. You can switch it off per chat. Every message also travels over TLS. No accounts, analytics, ads or tracking. Nothing leaves your phone except to the people you message, through your own iCloud or Google Drive.")
+                Text(PrivacyCopy.text())
                     .font(.system(size: 14)).lineSpacing(3).opacity(0.95)
             }
         }
