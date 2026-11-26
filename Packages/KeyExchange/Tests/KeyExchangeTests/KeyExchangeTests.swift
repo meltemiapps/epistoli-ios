@@ -136,6 +136,37 @@ private func scanner(_ identity: Identity) -> PrivateKeyLeakScanner {
         #expect(try contacts.contact(id: stored.id) == stored)
     }
 
+    /// Security, both paths, through the database: a pasted key change is saved Unverified with the
+    /// banner flag and stays that way; a camera scan saves it Verified and clears the flag.
+    @Test func pastedKeyChangePersistsUnverifiedUntilCameraScan() throws {
+        let (myStore, _, _) = try identityStore()
+        let me = try myStore.create(displayName: "Me")
+        let (mariaStore, _, _) = try identityStore()
+        let maria = try mariaStore.create(displayName: "Maria")
+        let pool = try database()
+
+        try ContactStore(db: pool).offer(try ContactCodec.read(try ContactCodec.code(for: maria), source: .scannedInPerson), from: me)
+        let newMaria = try mariaStore.replaceKey(of: maria)
+        let newCode = try ContactCodec.code(for: newMaria)
+
+        // Path 1: accept the new key from a pasted code. A fresh store reads it back from the file.
+        try ContactStore(db: pool).offer(try ContactCodec.read(newCode, source: .receivedOtherwise), from: me)
+        var stored = try #require(try ContactStore(db: pool).all().first)
+        #expect(stored.currentKey.fingerprint == newMaria.fingerprint.hex)
+        #expect(stored.verification == .unverified && stored.needsKeyChangeWarning)
+
+        // Pasting it again does not help.
+        #expect(try ContactStore(db: pool).offer(try ContactCodec.read(newCode, source: .receivedOtherwise), from: me).outcome == .unchanged)
+        stored = try #require(try ContactStore(db: pool).all().first)
+        #expect(stored.verification == .unverified && stored.needsKeyChangeWarning)
+
+        // Path 2: scan the same code with the camera.
+        #expect(try ContactStore(db: pool).offer(try ContactCodec.read(newCode, source: .scannedInPerson), from: me).outcome == .verified)
+        stored = try #require(try ContactStore(db: pool).all().first)
+        #expect(stored.verification == .verified && !stored.needsKeyChangeWarning)
+        #expect(stored.keys.count == 2)
+    }
+
     @Test func ownCodeIsRefused() throws {
         let (store, _, _) = try identityStore()
         let me = try store.create(displayName: "Me")
