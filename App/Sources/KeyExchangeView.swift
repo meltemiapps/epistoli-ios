@@ -51,11 +51,10 @@ struct MyCodeView: View {
         ScrollView {
             if let identity = model.identity, let code = try? model.myCode() {
                 VStack(spacing: 20) {
-                    QRCodeImage(text: code)
+                    QRCodeImage(text: code, label: "QR code for \(identity.displayName)")
                         .padding(16)
                         .background(.white, in: .rect(cornerRadius: 20))
                         .frame(maxWidth: 340)
-                        .accessibilityLabel("QR code for \(identity.displayName)")
                         .accessibilityIdentifier("mycode.qr")
 
                     VStack(spacing: 6) {
@@ -146,6 +145,16 @@ struct ScanView: View {
                 Text("Or paste a code")
             } footer: {
                 Text("A code you received as text, by message or email, adds the contact as Unverified.")
+            }
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .toolbar {
+            // The keyboard covers the form's button once a long code is pasted.
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button("Check code") { check(pasted, source: .receivedOtherwise) }
+                    .disabled(pasted.isEmpty)
+                    .accessibilityIdentifier("scan.paste.check.keyboard")
             }
         }
         .navigationDestination(item: $offer) { offer in

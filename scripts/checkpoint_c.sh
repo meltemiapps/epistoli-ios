@@ -56,7 +56,7 @@ run() {  # run <udid> <label> <test> [VAR=value ...]
   local vars=()
   for kv in "$@"; do vars+=("TEST_RUNNER_$kv"); done
   echo "checkpoint_c: $label ($test)"
-  env "${vars[@]}" xcodebuild test-without-building -project Epistoli.xcodeproj -scheme EpistoliScreenshots \
+  env ${vars[@]+"${vars[@]}"} xcodebuild test-without-building -project Epistoli.xcodeproj -scheme EpistoliScreenshots \
     -destination "id=$udid" -derivedDataPath "$BUILD" -resultBundlePath "$RESULTS/$label.xcresult" \
     -only-testing "EpistoliUITests/CheckpointScreenshots/$test" -quiet
 }
