@@ -28,7 +28,7 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           scripts/brand_check.sh
       - name: Test pure-Swift packages
-        # SealedCrypto, SealedStorage and KeyExchange are Apple-only (xcframework, Keychain, Secure Enclave); they run in the macOS job.
+        # SealedCrypto, SealedStorage, KeyExchange and Messaging are Apple-only (xcframework, Keychain, Secure Enclave); they run in the macOS job.
         run: swift test --package-path Packages/EpistoliCore
 
   macos:
@@ -62,6 +62,8 @@ jobs:
         run: swift test --package-path Packages/SealedStorage
       - name: Test KeyExchange
         run: swift test --package-path Packages/KeyExchange
+      - name: Test Messaging
+        run: swift test --package-path Packages/Messaging
       - name: Build and test
         run: |
           UDID=$(xcrun simctl list devices available -j | python3 -I -c '

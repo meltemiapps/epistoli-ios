@@ -71,7 +71,7 @@ struct KeyChangeWarning: View {
     }
 }
 
-private struct WarningLabelStyle: LabelStyle {
+struct WarningLabelStyle: LabelStyle {
     func makeBody(configuration: Configuration) -> some View {
         HStack(spacing: 8) {
             configuration.icon.foregroundStyle(Color.warning)
@@ -101,36 +101,6 @@ struct UnverifiedNote: View {
     var body: some View {
         Note(systemImage: "questionmark.circle",
              text: "Pasted codes are Unverified: you can't be sure this code came from \(name.isEmpty ? "them" : name). Scan their code in person to verify.")
-    }
-}
-
-/// A row in the chats list (demo layout: avatar, name, status line).
-struct ContactRow: View {
-    let contact: Contact
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Avatar(name: contact.displayName)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(contact.displayName).font(.system(size: 16, weight: .semibold))
-                Group {
-                    if contact.needsKeyChangeWarning {
-                        Label("Key changed · not checked in person", systemImage: "exclamationmark.triangle.fill")
-                            .labelStyle(WarningLabelStyle())
-                    } else {
-                        Text(contact.verification == .verified ? "Verified in person" : "Unverified · not scanned in person")
-                    }
-                }
-                .font(.system(size: 14)).opacity(0.88).lineLimit(1)
-            }
-            Spacer(minLength: 0)
-            Image(systemName: "chevron.right").font(.system(size: 14, weight: .semibold)).opacity(0.6)
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-        .contentShape(.rect)
-        .accessibilityElement(children: .combine)
-        .accessibilityIdentifier("contact.\(contact.displayName)")
     }
 }
 
@@ -164,10 +134,17 @@ struct ContactDetailView: View {
                 }
 
                 VStack(spacing: 8) {
+                    Button {
+                        if let chat = try? model.openChat(with: contact) { router.show(chat: chat) }
+                    } label: {
+                        Label("Message \(contact.displayName)", systemImage: "bubble.left.and.text.bubble.right")
+                    }
+                    .buttonStyle(AccentButtonStyle(height: 48))
+                    .accessibilityIdentifier("contact.message")
                     Button { router.open(.addContact(.scan)) } label: {
                         Label("Scan \(contact.displayName)'s code in person", systemImage: "qrcode.viewfinder")
                     }
-                    .buttonStyle(AccentButtonStyle(height: 48))
+                    .buttonStyle(SoftButtonStyle())
                     Button { newName = contact.displayName; renaming = true } label: {
                         Label("Rename", systemImage: "pencil")
                     }
@@ -203,7 +180,7 @@ struct ContactDetailView: View {
                     dismiss()
                 }
             } message: {
-                Text("Their key and key history are removed from this phone. To add them again, scan their code.")
+                Text("Their key, key history and your chat with them are removed from this phone. Groups you share stay. To add them again, scan their code.")
             }
         } else {
             ContentUnavailableView("No contact", systemImage: "person.crop.circle.badge.questionmark").appScreen()
