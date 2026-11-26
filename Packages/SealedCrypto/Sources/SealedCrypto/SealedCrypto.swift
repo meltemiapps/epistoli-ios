@@ -111,6 +111,12 @@ public enum SealedCrypto {
         try call { PgpbridgeArmorPublicKey(key.data, $0) }
     }
 
+    /// Imports binary public key packets received from someone else (for example in a contact code).
+    /// Rejects private keys and keys that cannot encrypt and verify.
+    public static func importPublicKey(_ data: Data) throws -> PGPPublicKey {
+        try PGPPublicKey(data: try call { PgpbridgeImportPublicKey(data, $0) })
+    }
+
     /// Imports an ASCII-armoured public key. Rejects private keys and keys that cannot encrypt and verify.
     public static func importArmored(_ armored: String) throws -> PGPPublicKey {
         try PGPPublicKey(data: try call { PgpbridgeImportArmoredPublicKey(armored, $0) })

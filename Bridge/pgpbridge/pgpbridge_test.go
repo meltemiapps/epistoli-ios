@@ -143,6 +143,23 @@ func TestImportRejectsPrivateKey(t *testing.T) {
 	}
 }
 
+func TestImportPublicKeyBinary(t *testing.T) {
+	priv, pub := mustKey(t, "me")
+	imported, err := ImportPublicKey(pub)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(imported, pub) {
+		t.Fatal("public key did not round-trip byte for byte")
+	}
+	if _, err := ImportPublicKey(priv); err == nil || !strings.HasPrefix(err.Error(), ErrPrefixKey) {
+		t.Fatalf("private key imported as a contact key: %v", err)
+	}
+	if _, err := ImportPublicKey([]byte("not a key")); err == nil {
+		t.Fatal("garbage accepted")
+	}
+}
+
 func TestEncryptRequiresRecipients(t *testing.T) {
 	priv, _ := mustKey(t, "me")
 	if _, err := EncryptAndSign([]byte("x"), NewRecipients(), priv); err == nil {
