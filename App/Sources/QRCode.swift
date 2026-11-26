@@ -7,10 +7,12 @@ import UIKit
 /// Draws text as a QR code. CoreImage picks alphanumeric mode for our Base45 text.
 struct QRCodeImage: View {
     let text: String
+    /// Spoken by VoiceOver. The image is not decorative: it is the screen's main content.
+    var label = "QR code"
 
     var body: some View {
         if let image = Self.render(text) {
-            Image(decorative: image, scale: 1)
+            Image(image, scale: 1, label: Text(label))
                 .interpolation(.none)
                 .resizable()
                 .scaledToFit()

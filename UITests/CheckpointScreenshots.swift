@@ -70,7 +70,7 @@ final class CheckpointScreenshots: XCTestCase {
         shot("\(tag)-1-scan")
         field.tap()
         field.typeText(code)
-        tap("scan.paste.check")
+        tap("scan.paste.check.keyboard")
         XCTAssertTrue(element("result.accept").waitForExistence(timeout: 10))
         shot("\(tag)-2-result")
         // Scroll so the warning and the button are visible too, if the result is long.
@@ -123,7 +123,7 @@ final class CheckpointScreenshots: XCTestCase {
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.tap()
         field.typeText(code)
-        tap("scan.paste.check")
+        tap("scan.paste.check.keyboard")
         sleep(1)
         shot("own-code-refused")
     }
