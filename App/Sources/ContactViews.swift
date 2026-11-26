@@ -2,27 +2,30 @@ import SwiftUI
 import EpistoliCore
 import SealedCrypto
 
-/// Verified / Unverified chip, in the demo's badge colours.
+/// Verified / Unverified badge: a solid pill with dark text, so it reads the same on every
+/// background and isn't tinted by the glass behind it.
 struct VerificationBadge: View {
     let state: VerificationState
 
     var body: some View {
         switch state {
         case .verified:
-            chip("Verified", systemImage: "checkmark.seal.fill", fill: Color(red: 52 / 255, green: 199 / 255, blue: 89 / 255).opacity(0.55))
+            pill("Verified", systemImage: "checkmark.seal.fill", fill: .badgeGreen)
                 .accessibilityIdentifier("badge.verified")
         case .unverified:
-            chip("Unverified", systemImage: "questionmark.circle", fill: Color.warning.opacity(0.35))
+            pill("Unverified", systemImage: "exclamationmark.triangle.fill", fill: .badgeAmber)
                 .accessibilityIdentifier("badge.unverified")
         }
     }
 
-    private func chip(_ title: String, systemImage: String, fill: Color) -> some View {
+    private func pill(_ title: String, systemImage: String, fill: Color) -> some View {
         Label(title, systemImage: systemImage)
-            .font(.system(size: 13, weight: .semibold))
+            .font(.system(size: 13, weight: .bold))
+            .foregroundStyle(Color.badgeText)
             .padding(.horizontal, 12)
             .frame(height: 30)
             .background(fill, in: .capsule)
+            .compositingGroup()
     }
 }
 

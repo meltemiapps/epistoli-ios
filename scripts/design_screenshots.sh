@@ -128,3 +128,12 @@ for bg in "${BACKGROUNDS[@]}"; do
   exit 1
 done
 echo "design_screenshots: all backgrounds passed"
+
+# White text must reach 4.5:1 on every screen. Skipped, because the white there isn't app text:
+#   04-scan        the system Paste button (grey, its own styling; left as the system draws it)
+#   11-appearance  the white selection ring around the chosen swatch (the labels below it are checked)
+export_shots
+trap - EXIT
+swift "$ROOT/scripts/contrast_check.swift" \
+  --skip "04-scan:40,1990,330,200" --skip "11-appearance:90,640,1030,170" \
+  "$SHOTS"/*.png | tee "$ATTEMPT/contrast.txt"

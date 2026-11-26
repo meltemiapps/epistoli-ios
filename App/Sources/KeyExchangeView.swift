@@ -27,8 +27,9 @@ struct KeyExchangeView: View {
     }
 }
 
-/// The demo's two-option switch: a glass track with a white 32% thumb.
+/// The demo's two-option switch: an accent glass track with an accent-filled thumb.
 struct SegmentedGlass<Value: Hashable>: View {
+    @Environment(Appearance.self) private var appearance
     @Binding var selection: Value
     let options: [(Value, String)]
 
@@ -38,7 +39,7 @@ struct SegmentedGlass<Value: Hashable>: View {
                 Button { selection = value } label: {
                     Text(label).font(.system(size: 15, weight: .semibold))
                         .frame(maxWidth: .infinity, minHeight: 40)
-                        .background(selection == value ? Color.white.opacity(0.32) : .clear, in: .rect(cornerRadius: 18, style: .continuous))
+                        .background(selection == value ? appearance.accentFill : .clear, in: .rect(cornerRadius: 18, style: .continuous))
                         .contentShape(.rect)
                 }
                 .buttonStyle(.plain)
@@ -46,7 +47,7 @@ struct SegmentedGlass<Value: Hashable>: View {
             }
         }
         .padding(4)
-        .glass(22, tint: 0.14)
+        .glass(22)
     }
 }
 
