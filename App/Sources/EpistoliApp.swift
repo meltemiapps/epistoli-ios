@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct EpistoliApp: App {
     @State private var model: AppModel
+    @State private var appearance = Appearance()
 
     init() {
         BrandGuard.verify()
@@ -11,7 +12,9 @@ struct EpistoliApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView().environment(model)
+            RootView()
+                .environment(model)
+                .environment(appearance)
         }
     }
 }

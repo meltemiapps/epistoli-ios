@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Epistoli iPhone demo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+input::placeholder{color:rgba(255,255,255,0.7)}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; position: relative; overflow: hidden; border-radius: 48px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif; color: #ffffff; background: {{bgCss}}; transition: background 0.4s">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,0.18)"></div>
+
+<sc-if value="{{isList}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; padding: 58px 16px 24px; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 34px; font-weight: 700; letter-spacing: 0.2px">Επιστολή</span>
+<span style="font-size: 13px; opacity: 0.85">Epistoli · private family messenger</span>
+</div>
+<div style="display: flex; gap: 8px">
+<button onClick="{{goQr}}" aria-label="Add contact by QR code" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.18); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><path d="M14 14h3v3M21 14v7h-4M14 18v3"></path></svg>
+</button>
+<button onClick="{{goSettings}}" aria-label="Settings" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.18); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-2.7-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 2.7-1.1V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 1.1 2.7H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1.3z"></path></svg>
+</button>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; border-radius: 28px; overflow: hidden; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.16); backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 10px 30px rgba(0,0,0,0.15)">
+<sc-for list="{{chats}}" as="c" hint-placeholder-count="4">
+<button onClick="{{c.open}}" style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: none; border-bottom: 1px solid rgba(255,255,255,0.18); background: transparent; text-align: left">
+<span style="width: 46px; height: 46px; border-radius: 23px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 18px; background: rgba(255,255,255,0.28)">{{c.initial}}</span>
+<span style="display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0">
+<span style="display: flex; justify-content: space-between; font-weight: 600; font-size: 16px"><span>{{c.name}}</span><span style="font-weight: 400; font-size: 13px; opacity: 0.85">{{c.time}}</span></span>
+<span style="font-size: 14px; opacity: 0.88; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{c.lockLabel}} · {{c.last}}</span>
+</span>
+</button>
+</sc-for>
+</div>
+<div style="display: flex; align-items: center; justify-content: space-between; padding: 0 6px">
+<span style="font-size: 13px; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; opacity: 0.9">Channels · your bots</span>
+<button onClick="{{goNew}}" style="height: 30px; padding: 0 12px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.18); font-size: 13px; font-weight: 600">+ New</button>
+</div>
+<div style="display: flex; flex-direction: column; border-radius: 28px; overflow: hidden; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.16); backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%); box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 10px 30px rgba(0,0,0,0.15)">
+<sc-for list="{{chList}}" as="h" hint-placeholder-count="2">
+<button onClick="{{h.open}}" style="display: flex; align-items: center; gap: 12px; padding: 11px 14px; border: none; border-bottom: 1px solid rgba(255,255,255,0.18); background: transparent; text-align: left">
+<span style="width: 46px; height: 46px; border-radius: 14px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px; background: rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.3)">{{h.icon}}</span>
+<span style="display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0">
+<span style="font-weight: 600; font-size: 16px">{{h.name}}</span>
+<span style="font-size: 13px; opacity: 0.88; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{h.kind}}</span>
+</span>
+</button>
+</sc-for>
+</div>
+<span style="font-size: 12px; opacity: 0.85; text-align: center">No accounts, no tracking, no data collected</span>
+</div>
+</sc-if>
+
+<sc-if value="{{isChat}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column">
+<div style="margin: 52px 12px 0; padding: 8px 10px; display: flex; align-items: center; gap: 10px; border-radius: 26px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.18); backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%)">
+<button onClick="{{goList}}" aria-label="Back to chats" style="width: 44px; height: 44px; border: none; background: transparent; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</button>
+<span style="display: flex; flex-direction: column; flex: 1"><span style="font-weight: 600; font-size: 17px">{{chatName}}</span><span style="font-size: 12px; opacity: 0.9">{{pgpShort}}</span></span>
+<button onClick="{{togglePgp}}" aria-label="Turn PGP on or off for this chat" style="height: 36px; padding: 0 12px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.45); background: {{pgpChipBg}}; display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>
+<span>{{pgpChip}}</span>
+</button>
+</div>
+<div style="margin: 10px 24px 0; padding: 8px 12px; border-radius: 14px; font-size: 12px; line-height: 1.4; text-align: center; background: rgba(0,0,0,0.25)">{{pgpBanner}}</div>
+<div style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 14px 14px">
+<sc-for list="{{msgs}}" as="m" hint-placeholder-count="4">
+<div style="display: flex; justify-content: {{m.align}}">
+<div style="max-width: 76%; padding: 10px 14px; border-radius: 22px; font-size: 16px; line-height: 1.35; border: 1px solid rgba(255,255,255,0.35); background: {{m.bg}}; backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%)">
+<sc-if value="{{m.attach}}" hint-placeholder-val="{{ false }}">
+<span style="display: flex; align-items: center; gap: 10px">
+<span style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.3); display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="9" cy="10" r="2"></circle><path d="M21 16l-5-5-8 8"></path></svg></span>
+<span style="display: flex; flex-direction: column"><span style="font-weight: 600">{{m.name}}</span><span style="font-size: 12px; opacity: 0.9">{{m.size}}</span></span>
+</span>
+</sc-if>
+<sc-if value="{{m.isText}}" hint-placeholder-val="{{ true }}"><span>{{m.text}}</span></sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+<form onSubmit="{{send}}" style="margin: 0 12px 30px; padding: 6px; display: flex; align-items: center; gap: 6px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.18); backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%)">
+<button type="button" onClick="{{openSheet}}" aria-label="Add attachment" style="width: 44px; height: 44px; border-radius: 22px; border: none; background: rgba(255,255,255,0.22); display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+</button>
+<label for="draft" style="position: absolute; left: -9999px">Message</label>
+<input id="draft" value="{{draft}}" onChange="{{typeDraft}}" placeholder="Message" style="flex: 1; min-width: 0; height: 40px; border: none; outline: none; background: transparent; color: #fff; font: inherit; font-size: 16px">
+<button type="submit" aria-label="Send" style="width: 44px; height: 44px; border-radius: 22px; border: none; background: {{accent}}; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+</button>
+</form>
+<sc-if value="{{sheet}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 10px; right: 10px; bottom: 26px; padding: 14px; display: flex; flex-direction: column; gap: 8px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.4); background: rgba(30,30,40,0.42); backdrop-filter: blur(34px) saturate(180%); -webkit-backdrop-filter: blur(34px) saturate(180%); box-shadow: 0 20px 50px rgba(0,0,0,0.35)">
+<span style="font-size: 13px; opacity: 0.9; text-align: center">Attach, encrypted on your phone before it leaves</span>
+<sc-for list="{{sources}}" as="s" hint-placeholder-count="4">
+<button onClick="{{s.pick}}" style="height: 48px; border-radius: 16px; border: none; background: rgba(255,255,255,0.16); font-size: 16px; font-weight: 500">{{s.label}}</button>
+</sc-for>
+<button onClick="{{closeSheet}}" style="height: 48px; border-radius: 16px; border: none; background: rgba(255,255,255,0.3); font-size: 16px; font-weight: 600">Cancel</button>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{isQr}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; padding: 52px 16px 24px; gap: 14px">
+<div style="display: flex; align-items: center; gap: 6px">
+<button onClick="{{goList}}" aria-label="Back to chats" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</button>
+<span style="font-size: 28px; font-weight: 700">Add contact</span>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 4px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.14)">
+<button onClick="{{tabMine}}" style="height: 40px; border-radius: 18px; border: none; background: {{mineTabBg}}; font-size: 15px; font-weight: 600">My code</button>
+<button onClick="{{tabScan}}" style="height: 40px; border-radius: 18px; border: none; background: {{scanTabBg}}; font-size: 15px; font-weight: 600">Scan</button>
+</div>
+<sc-if value="{{showMine}}" hint-placeholder-val="{{ true }}">
+<div style="padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 14px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.16); backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%)">
+<div role="img" aria-label="QR code with your public key" style="width: 250px; height: 250px; padding: 12px; box-sizing: border-box; border-radius: 20px; background: #ffffff; display: grid; grid-template-columns: repeat(25, minmax(0, 1fr))">
+<sc-for list="{{qrCells}}" as="q" hint-placeholder-count="625"><span style="background: {{q.c}}"></span></sc-for>
+</div>
+<span style="font-weight: 600; font-size: 17px">Your name</span>
+<span style="font-family: ui-monospace, Menlo, monospace; font-size: 13px; letter-spacing: 0.5px; opacity: 0.95">4F2A 9C1E 77B0 D513 08E6</span>
+<span style="font-size: 13px; line-height: 1.4; text-align: center; opacity: 0.92">Holds your public key, its fingerprint and how to reach you. Never your private key. Let the other person scan it, then scan theirs.</span>
+</div>
+</sc-if>
+<sc-if value="{{showScan}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 14px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.16); backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%)">
+<sc-if value="{{notScanned}}" hint-placeholder-val="{{ true }}">
+<div style="width: 250px; height: 250px; border-radius: 24px; background: rgba(0,0,0,0.45); position: relative; display: flex; align-items: center; justify-content: center">
+<div style="width: 170px; height: 170px; border-radius: 18px; border: 3px solid rgba(255,255,255,0.9)"></div>
+<span style="position: absolute; bottom: 14px; font-size: 13px; opacity: 0.9">Camera</span>
+</div>
+<span style="font-size: 14px; text-align: center; opacity: 0.95">Point at the other person's Επιστολή code</span>
+<button onClick="{{doScan}}" style="height: 46px; padding: 0 22px; border-radius: 16px; border: none; background: {{accent}}; font-size: 15px; font-weight: 600">Simulate a scan</button>
+</sc-if>
+<sc-if value="{{scanned}}" hint-placeholder-val="{{ false }}">
+<span style="width: 64px; height: 64px; border-radius: 32px; background: {{accent}}; display: flex; align-items: center; justify-content: center"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>
+<span style="font-weight: 700; font-size: 20px">Νίκος added</span>
+<span style="font-family: ui-monospace, Menlo, monospace; font-size: 13px; opacity: 0.95">B71C 04DE 9A3F 21C8 6E50</span>
+<span style="font-size: 13px; line-height: 1.4; text-align: center; opacity: 0.92">Verified in person. If Νίκος's key ever changes, you'll be warned before sending.</span>
+<button onClick="{{startChat}}" style="height: 46px; padding: 0 22px; border-radius: 16px; border: none; background: rgba(255,255,255,0.26); font-size: 15px; font-weight: 600">Start chat</button>
+</sc-if>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{isChannel}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column">
+<div style="margin: 52px 12px 0; padding: 8px 10px; display: flex; align-items: center; gap: 10px; border-radius: 26px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.18); backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%)">
+<button onClick="{{goList}}" aria-label="Back to chats" style="width: 44px; height: 44px; border: none; background: transparent; display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</button>
+<span style="display: flex; flex-direction: column; flex: 1; min-width: 0"><span style="font-weight: 600; font-size: 17px">{{ch.name}}</span><span style="font-size: 12px; opacity: 0.9; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ch.kind}}</span></span>
+<button onClick="{{goKeys}}" aria-label="Channel keys and settings" style="height: 36px; padding: 0 12px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.45); background: rgba(255,255,255,0.16); display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600">
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M11 12l9-9M17 6l3 3M15 8l2 2"></path></svg>
+<span>Keys</span>
+</button>
+</div>
+<div style="margin: 10px 20px 0; padding: 8px 12px; border-radius: 14px; font-size: 12px; line-height: 1.4; text-align: center; background: rgba(0,0,0,0.28)">{{ch.banner}}</div>
+<div style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 14px 14px">
+<sc-for list="{{chMsgs}}" as="m" hint-placeholder-count="4">
+<div style="display: flex; flex-direction: column; align-items: {{m.align}}; gap: 4px">
+<sc-if value="{{m.isBot}}" hint-placeholder-val="{{ false }}"><span style="font-size: 11px; font-weight: 600; opacity: 0.85; padding: 0 6px">{{m.botName}} · bot</span></sc-if>
+<div style="max-width: 82%; padding: 10px 14px; border-radius: {{m.radius}}; font-size: 15px; line-height: 1.38; border: {{m.border}}; background: {{m.bg}}; backdrop-filter: blur(22px) saturate(180%); -webkit-backdrop-filter: blur(22px) saturate(180%); font-family: {{m.font}}; white-space: pre-wrap">{{m.shown}}</div>
+<span style="display: flex; flex-wrap: wrap; gap: 4px; justify-content: {{m.align}}; max-width: 90%">
+<sc-for list="{{m.badges}}" as="b" hint-placeholder-count="2"><span style="font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 10px; background: {{b.bg}}">{{b.t}}</span></sc-for>
+<sc-if value="{{m.failed}}" hint-placeholder-val="{{ false }}"><button onClick="{{m.retry}}" style="font-size: 10.5px; font-weight: 700; padding: 3px 10px; border-radius: 10px; border: none; background: #ffffff; color: #b3261e">Retry</button></sc-if>
+</span>
+</div>
+</sc-for>
+</div>
+<form onSubmit="{{chSend}}" style="margin: 0 12px 30px; padding: 6px; display: flex; align-items: center; gap: 6px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.18); backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%)">
+<label for="chdraft" style="position: absolute; left: -9999px">Command or prompt</label>
+<input id="chdraft" value="{{chDraft}}" onChange="{{typeCh}}" placeholder="{{ch.placeholder}}" style="flex: 1; min-width: 0; height: 40px; padding-left: 12px; border: none; outline: none; background: transparent; color: #fff; font: inherit; font-size: 16px">
+<button type="submit" aria-label="Send to bot" style="width: 44px; height: 44px; border-radius: 22px; border: none; background: {{accent}}; display: flex; align-items: center; justify-content: center">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+</button>
+</form>
+<sc-if value="{{consentOpen}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,0.35)"></div>
+<div role="dialog" aria-label="Permission to send to this bot" style="position: absolute; left: 10px; right: 10px; bottom: 26px; padding: 18px; display: flex; flex-direction: column; gap: 10px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.4); background: rgba(30,30,40,0.5); backdrop-filter: blur(34px) saturate(180%); -webkit-backdrop-filter: blur(34px) saturate(180%); box-shadow: 0 20px 50px rgba(0,0,0,0.35)">
+<span style="font-weight: 700; font-size: 18px; text-align: center">Send to {{ch.host}}?</span>
+<span style="font-size: 13px; line-height: 1.45; opacity: 0.95">This channel sends what you type to a server you set up. Επιστολή never sees it.</span>
+<div style="display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 16px; background: rgba(255,255,255,0.12); font-size: 13px; line-height: 1.4">
+<span>✓ Your message text</span>
+<span style="opacity: 0.8">✕ Earlier messages (off, change in channel settings)</span>
+<span style="opacity: 0.8">✕ Attachments (off)</span>
+</div>
+<button onClick="{{allow}}" style="height: 48px; border-radius: 16px; border: none; background: {{accent}}; font-size: 16px; font-weight: 600">Allow for this channel</button>
+<button onClick="{{deny}}" style="height: 44px; border-radius: 16px; border: none; background: rgba(255,255,255,0.2); font-size: 15px; font-weight: 600">Not now</button>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{isKeys}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; padding: 52px 16px 24px; gap: 12px; overflow-y: auto">
+<div style="display: flex; align-items: center; gap: 6px">
+<button onClick="{{backToCh}}" aria-label="Back to channel" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</button>
+<span style="display: flex; flex-direction: column"><span style="font-size: 26px; font-weight: 700">Channel keys</span><span style="font-size: 13px; opacity: 0.9">{{ch.name}} · separate from your personal key</span></span>
+</div>
+<div style="padding: 16px; display: flex; gap: 14px; border-radius: 26px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.16); backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%)">
+<div role="img" aria-label="QR code of this channel's public signing key" style="width: 116px; height: 116px; flex-shrink: 0; padding: 7px; box-sizing: border-box; border-radius: 14px; background: #ffffff; display: grid; grid-template-columns: repeat(25, minmax(0, 1fr))">
+<sc-for list="{{qrCells}}" as="q" hint-placeholder-count="625"><span style="background: {{q.c}}"></span></sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 5px; min-width: 0">
+<span style="font-weight: 600">Signing key</span>
+<span style="font-size: 12px; opacity: 0.92">P-256 · held in the Secure Enclave, cannot leave this iPhone</span>
+<span style="font-family: ui-monospace, Menlo, monospace; font-size: 12px">{{keyFp}}</span>
+<span style="font-size: 12px; opacity: 0.85">Created {{keyDate}}</span>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<button onClick="{{copyKey}}" style="height: 44px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.18); font-size: 14px; font-weight: 600">{{copyLabel}}</button>
+<button style="height: 44px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.18); font-size: 14px; font-weight: 600">Export .pub</button>
+<button style="height: 44px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.18); font-size: 14px; font-weight: 600">Share…</button>
+</div>
+<div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.16)">
+<span style="display: flex; justify-content: space-between"><span style="font-weight: 600">Encryption key</span><span style="font-size: 13px; opacity: 0.9">{{encLabel}}</span></span>
+<span style="font-size: 12px; opacity: 0.9; line-height: 1.4">{{encNote}}</span>
+</div>
+<div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.16)">
+<span style="font-weight: 600">Bot's key</span>
+<span style="font-size: 12px; opacity: 0.92; line-height: 1.4">{{remoteNote}}</span>
+</div>
+<sc-if value="{{notConfirmRegen}}" hint-placeholder-val="{{ true }}">
+<button onClick="{{askRegen}}" style="height: 46px; border-radius: 16px; border: 1px solid rgba(255,140,130,0.7); background: rgba(179,38,30,0.35); font-size: 15px; font-weight: 600">Regenerate keypair…</button>
+</sc-if>
+<sc-if value="{{confirmRegen}}" hint-placeholder-val="{{ false }}">
+<div style="padding: 14px; display: flex; flex-direction: column; gap: 8px; border-radius: 20px; border: 1px solid rgba(255,140,130,0.7); background: rgba(120,20,20,0.45)">
+<span style="font-size: 13px; line-height: 1.4">The bot will reject your messages until you paste the new public key into it. The old key stays for 30 days to check past messages, then is deleted.</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button onClick="{{cancelRegen}}" style="height: 42px; border-radius: 14px; border: none; background: rgba(255,255,255,0.22); font-weight: 600">Cancel</button>
+<button onClick="{{doRegen}}" style="height: 42px; border-radius: 14px; border: none; background: #d93025; font-weight: 600">Regenerate</button>
+</div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{isNew}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; padding: 52px 16px 24px; gap: 12px">
+<div style="display: flex; align-items: center; gap: 6px">
+<button onClick="{{goList}}" aria-label="Back to chats" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</button>
+<span style="font-size: 28px; font-weight: 700">New channel</span>
+</div>
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 12px; border-radius: 26px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.16); backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%)">
+<label for="nname" style="font-size: 13px; font-weight: 600">Name</label>
+<input id="nname" value="{{newName}}" onChange="{{typeNewName}}" style="height: 44px; padding: 0 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.35); background: rgba(0,0,0,0.2); color: #fff; font: inherit; font-size: 16px; outline: none">
+<span style="font-size: 13px; font-weight: 600">Connects to</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 4px; border-radius: 18px; background: rgba(0,0,0,0.2)">
+<button onClick="{{pickLlm}}" style="height: 40px; border-radius: 14px; border: none; background: {{llmBg}}; font-size: 14px; font-weight: 600">AI model</button>
+<button onClick="{{pickHook}}" style="height: 40px; border-radius: 14px; border: none; background: {{hookBg}}; font-size: 14px; font-weight: 600">Webhook</button>
+</div>
+<span style="font-size: 12px; opacity: 0.88; line-height: 1.4">{{typeHint}}</span>
+<label for="nurl" style="font-size: 13px; font-weight: 600">Endpoint</label>
+<input id="nurl" value="{{newUrl}}" onChange="{{typeNewUrl}}" style="height: 44px; padding: 0 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.35); background: rgba(0,0,0,0.2); color: #fff; font-family: ui-monospace, Menlo, monospace; font-size: 13px; outline: none">
+<span style="display: flex; justify-content: space-between; align-items: center; font-size: 13px"><span style="font-weight: 600">{{secretLabel}}</span><span style="font-family: ui-monospace, Menlo, monospace; opacity: 0.9">•••••••• · Keychain</span></span>
+<button onClick="{{testConn}}" style="height: 42px; border-radius: 14px; border: none; background: rgba(255,255,255,0.24); font-size: 14px; font-weight: 600">{{testLabel}}</button>
+</div>
+<button onClick="{{createCh}}" style="height: 50px; border-radius: 18px; border: none; background: {{accent}}; font-size: 16px; font-weight: 600">Create channel and keys</button>
+</div>
+</sc-if>
+
+<sc-if value="{{isSettings}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; flex-direction: column; padding: 52px 16px 24px; gap: 14px">
+<div style="display: flex; align-items: center; gap: 6px">
+<button onClick="{{goList}}" aria-label="Back to chats" style="width: 44px; height: 44px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center">
+<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+</button>
+<span style="font-size: 28px; font-weight: 700">Appearance</span>
+</div>
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 12px; border-radius: 26px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.16); backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%)">
+<span style="font-weight: 600">Background</span>
+<span style="font-size: 13px; opacity: 0.9; line-height: 1.4">Pick a photo, for example the same one as your wallpaper. The glass and accent colour follow it.</span>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px">
+<sc-for list="{{bgList}}" as="b" hint-placeholder-count="4">
+<button onClick="{{b.pick}}" aria-label="{{b.label}}" style="height: 92px; border-radius: 16px; border: {{b.ring}}; background: {{b.swatch}}; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; font-size: 11px; font-weight: 600">{{b.label}}</button>
+</sc-for>
+</div>
+<button onClick="{{fromPhotos}}" style="height: 46px; border-radius: 16px; border: none; background: rgba(255,255,255,0.24); font-size: 15px; font-weight: 600">Choose from Photos…</button>
+</div>
+<div style="padding: 16px; display: flex; flex-direction: column; gap: 10px; border-radius: 26px; border: 1px solid rgba(255,255,255,0.35); background: rgba(255,255,255,0.16); backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%)">
+<span style="font-weight: 600">Privacy</span>
+<span style="font-size: 14px; line-height: 1.45; opacity: 0.95">PGP for new chats: on. You can switch it off per chat. Every message also travels over TLS. No accounts, analytics, ads or tracking. Nothing leaves your phone except to the people you message, through your own iCloud or Google Drive.</span>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(p) {
+    super(p);
+    this.state = { screen: 'list', bg: 'aegean', pgp: true, sheet: false, draft: '', qrTab: 'mine', scanned: false, chat: 'Οικογένεια', msgs: [
+      { id: 1, text: 'Καλησπέρα! Did the beach photos arrive?', mine: false },
+      { id: 2, text: 'Yes, all of them. Sending my favourite.', mine: true },
+      { id: 3, attach: true, name: 'beach.jpg', size: '2.4 MB · from Photos', mine: true },
+      { id: 4, text: 'Beautiful. Print it for the kitchen.', mine: false }
+    ],
+    chId: 'n8n', chDraft: '', consent: {}, consentOpen: false, pending: '', confirmRegen: false, copied: false,
+    newName: '#hermes-ops', newType: 'hook', newUrl: 'https://hermes.home.example/hook', tested: false,
+    keyGen: { n8n: 0, openclaw: 0 },
+    channels: {
+      n8n: { name: '#n8n-alerts', icon: '⚡', type: 'hook', host: 'n8n.home.example', kind: 'Webhook · n8n · signed and encrypted', placeholder: 'Command, e.g. /status nas',
+        msgs: [
+          { id: 101, bot: true, text: 'Nightly backup finished: 312 GB, 0 errors.', badges: ['verified', 'encrypted'] },
+          { id: 102, mine: true, text: '/status nas', badges: ['signed', 'encrypted'] },
+          { id: 103, bot: true, text: 'NAS: 4 disks healthy, 61% used. Next backup 02:00.', badges: ['verified', 'encrypted'] },
+          { id: 104, mine: true, text: '/restart plex', badges: ['signed'], failed: true }
+        ] },
+      openclaw: { name: '#openclaw-dev', icon: '✦', type: 'llm', host: 'ai.home.example', kind: 'AI model · OpenAI-compatible · TLS', placeholder: 'Ask the model',
+        msgs: [
+          { id: 201, mine: true, text: 'Summarise today’s failing tests', badges: ['tls'] },
+          { id: 202, bot: true, text: '3 tests failed, all in the SealedSync conflict suite. Same root cause: two edits with equal Lamport counters.', badges: ['tls', 'unsigned'] }
+        ] }
+    } };
+  }
+  botReply(id, text) {
+    const ch = this.state.channels[id];
+    if (ch.type === 'llm') return 'Draft reply from your model:\n• Break Lamport ties by sender fingerprint\n• Add a test for equal counters\nWant the patch?';
+    if (/status/i.test(text)) return 'NAS: 4 disks healthy, 61% used. Uptime 18 days.';
+    return 'Workflow received "' + text + '" and ran successfully.';
+  }
+  pushMsgs(id, fn) {
+    const chs = Object.assign({}, this.state.channels);
+    chs[id] = Object.assign({}, chs[id], { msgs: fn(chs[id].msgs) });
+    this.setState({ channels: chs });
+  }
+  dispatch(id, text) {
+    const ch = this.state.channels[id];
+    const out = ch.type === 'llm' ? ['tls'] : ['signed', 'encrypted'];
+    const botId = Date.now() + 1;
+    const full = this.botReply(id, text);
+    this.pushMsgs(id, (m) => m.concat([{ id: Date.now(), mine: true, text, badges: out }, { id: botId, bot: true, text: full, shownLen: 0, streaming: true, badges: [] }]));
+    let n = 0;
+    const tick = () => {
+      n = Math.min(full.length, n + 4);
+      const done = n >= full.length;
+      this.pushMsgs(id, (m) => m.map((x) => x.id === botId ? Object.assign({}, x, { shownLen: n, streaming: !done, badges: done ? (ch.type === 'llm' ? ['tls', 'unsigned'] : ['verified', 'encrypted']) : ['streaming'] }) : x));
+      if (!done) setTimeout(tick, 45);
+    };
+    setTimeout(tick, 350);
+  }
+  renderVals() {
+    const BG = {
+      aegean: { label: 'Aegean', accent: '#1E88E5', css: 'radial-gradient(90% 60% at 20% 15%, #5fc3e8 0%, rgba(95,195,232,0) 70%), radial-gradient(80% 60% at 85% 85%, #0d3b66 0%, rgba(13,59,102,0) 70%), linear-gradient(165deg, #2a86c4, #0b2d4f)' },
+      sunset: { label: 'Sunset', accent: '#E8590C', css: 'radial-gradient(80% 50% at 70% 20%, #ffb36b 0%, rgba(255,179,107,0) 70%), radial-gradient(90% 60% at 10% 90%, #5b2a86 0%, rgba(91,42,134,0) 70%), linear-gradient(170deg, #d9603b, #3b1d5c)' },
+      olive: { label: 'Olive', accent: '#2E7D32', css: 'radial-gradient(80% 50% at 25% 25%, #a5c47a 0%, rgba(165,196,122,0) 70%), radial-gradient(90% 60% at 90% 85%, #243b1c 0%, rgba(36,59,28,0) 70%), linear-gradient(170deg, #5e7f3a, #1e2f17)' },
+      night: { label: 'Night', accent: '#5E5CE6', css: 'radial-gradient(70% 45% at 75% 20%, #4b4fa8 0%, rgba(75,79,168,0) 70%), radial-gradient(90% 60% at 15% 90%, #10162e 0%, rgba(16,22,46,0) 70%), linear-gradient(170deg, #26285e, #0a0d1f)' }
+    };
+    const s = this.state, cur = BG[s.bg];
+    const go = (screen, extra) => () => this.setState(Object.assign({ screen, sheet: false }, extra || {}));
+    const chats = [['Οικογένεια', 'Group · 6', '19:42', 'Beautiful. Print it for the kitchen.'], ['Μαμά', 'Μ', '18:10', 'Call me when you land'], ['Νίκος', 'Ν', 'Tue', 'beach.jpg'], ['Ελένη', 'Ε', 'Mon', 'Thanks!']]
+      .map(([name, ini, time, last]) => ({ name, initial: ini.startsWith('Group') ? 'Ο' : ini, time, last, lockLabel: 'PGP', open: go('chat', { chat: name }) }));
+    const add = (m) => this.setState({ msgs: s.msgs.concat([Object.assign({ id: Date.now(), mine: true }, m)]), sheet: false });
+    const sources = [['Photos', 'IMG_2041.heic', '3.1 MB · from Photos'], ['Files', 'recipe.pdf', '420 KB · from Files'], ['iCloud Drive', 'trip-plan.pages', '1.2 MB · from iCloud Drive'], ['Google Drive', 'family-tree.xlsx', '88 KB · from Google Drive']]
+      .map(([label, name, size]) => ({ label, pick: () => add({ attach: true, name, size }) }));
+    const N = 25, finder = (r, c) => {
+      for (const [R, C] of [[0, 0], [0, N - 7], [N - 7, 0]]) {
+        const y = r - R, x = c - C;
+        if (y >= 0 && y < 7 && x >= 0 && x < 7) return (y === 0 || y === 6 || x === 0 || x === 6 || (y >= 2 && y <= 4 && x >= 2 && x <= 4)) ? 1 : 0;
+      }
+      return -1;
+    };
+    const qrCells = [];
+    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+      const f = finder(r, c);
+      const on = f === -1 ? ((r * 31 + c * 17 + r * c * 7) % 5 < 2) : f === 1;
+      qrCells.push({ c: on ? '#111111' : '#ffffff' });
+    }
+    const BADGE = {
+      signed: ['Signed', 'rgba(255,255,255,0.22)'], verified: ['✓ Verified reply', 'rgba(52,199,89,0.55)'],
+      encrypted: ['🔒 Encrypted', 'rgba(255,255,255,0.22)'], tls: ['TLS + API key', 'rgba(255,255,255,0.22)'],
+      unsigned: ['Not signed: AI models don’t check signatures', 'rgba(255,204,0,0.35)'],
+      streaming: ['Streaming…', 'rgba(255,255,255,0.22)'], failed: ['Delivery failed', 'rgba(217,48,37,0.75)']
+    };
+    const chRaw = s.channels[s.chId];
+    const ch = Object.assign({}, chRaw, { banner: chRaw.type === 'llm'
+      ? 'Talks to your own AI model at ' + chRaw.host + '. Protected by TLS and your API key. Lives on this iPhone only, never shared with family.'
+      : 'Talks to your workflow at ' + chRaw.host + '. Every message is signed with this channel’s key and encrypted. Replies must carry the bot’s signature.' });
+    const chList = Object.keys(s.channels).map((k) => ({ name: s.channels[k].name, icon: s.channels[k].icon, kind: s.channels[k].kind, open: go('channel', { chId: k, confirmRegen: false }) }));
+    const chMsgs = ch.msgs.map((m) => {
+      const shown = m.streaming ? m.text.slice(0, m.shownLen || 0) + ' ▍' : m.text;
+      const badges = (m.failed ? m.badges.concat(['failed']) : m.badges).map((b) => ({ t: BADGE[b][0], bg: BADGE[b][1] }));
+      return {
+        shown, badges, isBot: !!m.bot, botName: ch.name, failed: !!m.failed,
+        align: m.mine ? 'flex-end' : 'flex-start',
+        radius: m.bot ? '6px 22px 22px 22px' : '22px 22px 6px 22px',
+        border: m.bot ? '1px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.35)',
+        bg: m.bot ? 'rgba(10,14,30,0.42)' : cur.accent + 'B3',
+        font: m.mine && m.text.startsWith('/') ? 'ui-monospace, Menlo, monospace' : 'inherit',
+        retry: () => this.pushMsgs(s.chId, (list) => list.map((x) => x.id === m.id ? Object.assign({}, x, { failed: false }) : x).concat([{ id: Date.now(), bot: true, text: 'Plex restarted.', badges: ['verified', 'encrypted'] }]))
+      };
+    });
+    const gen = s.keyGen[s.chId] || 0;
+    const fps = ['9D41 E07A 2C55 B813 F0A6', '5B2E 7710 C9D4 0A3F 8E21', 'C08A 61F2 4D9B E375 1A0C'];
+    const keyFp = fps[(gen + (s.chId === 'n8n' ? 0 : 1)) % 3];
+    const isLlm = ch.type === 'llm';
+    return {
+      chList, ch, chMsgs, chDraft: s.chDraft, consentOpen: s.consentOpen,
+      isChannel: s.screen === 'channel', isKeys: s.screen === 'keys', isNew: s.screen === 'new',
+      goNew: go('new', { tested: false }), goKeys: go('keys', { confirmRegen: false, copied: false }), backToCh: go('channel'),
+      typeCh: (e) => this.setState({ chDraft: e.target.value }),
+      chSend: (e) => { e.preventDefault(); const t = s.chDraft.trim(); if (!t) return; if (!s.consent[s.chId]) { this.setState({ consentOpen: true, pending: t, chDraft: '' }); return; } this.setState({ chDraft: '' }); this.dispatch(s.chId, t); },
+      allow: () => { const c = Object.assign({}, s.consent); c[s.chId] = true; const t = s.pending; this.setState({ consent: c, consentOpen: false, pending: '' }); this.dispatch(s.chId, t); },
+      deny: () => this.setState({ consentOpen: false, chDraft: s.pending, pending: '' }),
+      keyFp, keyDate: gen ? '25 Nov 2026, 19:40' : '25 Nov 2026, 18:02',
+      copyLabel: s.copied ? 'Copied' : 'Copy', copyKey: () => this.setState({ copied: true }),
+      encLabel: isLlm ? 'Not used' : 'OpenPGP · on',
+      encNote: isLlm ? 'AI model endpoints can’t decrypt, so this channel relies on TLS and your API key. Put the model behind n8n or Hermes to add encryption.' : 'Messages are encrypted to the bot’s public key. Replies are encrypted to this channel’s key. Export .asc to add it to n8n.',
+      remoteNote: isLlm ? 'None. Replies can’t be verified, so they are marked “Not signed”.' : (s.chId === 'n8n' ? 'n8n signing key 3E7F 2B90 D1C4 · added by QR. Unsigned or wrongly signed replies are rejected.' : 'Not added yet. Scan or paste the bot’s public key so its replies can be verified.'),
+      confirmRegen: s.confirmRegen, notConfirmRegen: !s.confirmRegen,
+      askRegen: () => this.setState({ confirmRegen: true }), cancelRegen: () => this.setState({ confirmRegen: false }),
+      doRegen: () => { const kg = Object.assign({}, s.keyGen); kg[s.chId] = (kg[s.chId] || 0) + 1; this.setState({ keyGen: kg, confirmRegen: false, copied: false }); },
+      newName: s.newName, newUrl: s.newUrl,
+      typeNewName: (e) => this.setState({ newName: e.target.value }), typeNewUrl: (e) => this.setState({ newUrl: e.target.value, tested: false }),
+      llmBg: s.newType === 'llm' ? 'rgba(255,255,255,0.32)' : 'transparent', hookBg: s.newType === 'hook' ? 'rgba(255,255,255,0.32)' : 'transparent',
+      pickLlm: () => this.setState({ newType: 'llm', newUrl: 'https://ai.home.example/v1', tested: false }),
+      pickHook: () => this.setState({ newType: 'hook', newUrl: 'https://hermes.home.example/hook', tested: false }),
+      typeHint: s.newType === 'llm' ? 'Ollama, OpenClaw, vLLM or any OpenAI-compatible API. Protected by TLS and your API key.' : 'n8n, Hermes, Make or your own endpoint. Every message is signed with this channel’s key, and can be encrypted.',
+      secretLabel: s.newType === 'llm' ? 'API key' : 'Secret header',
+      testLabel: s.tested ? '✓ Connected · TLS 1.3' : 'Test connection', testConn: () => this.setState({ tested: true }),
+      createCh: () => {
+        const id = 'c' + Date.now(); const chs = Object.assign({}, s.channels); const llm = s.newType === 'llm';
+        let host = s.newUrl; try { host = new URL(s.newUrl).host; } catch (err) {}
+        chs[id] = { name: s.newName || '#new-channel', icon: llm ? '✦' : '⚡', type: s.newType, host, kind: llm ? 'AI model · TLS' : 'Webhook · signed', placeholder: llm ? 'Ask the model' : 'Command', msgs: [] };
+        this.setState({ channels: chs, chId: id, screen: 'keys', confirmRegen: false, copied: false });
+      },
+      bgCss: cur.css, accent: cur.accent,
+      isList: s.screen === 'list', isChat: s.screen === 'chat', isSettings: s.screen === 'settings', isQr: s.screen === 'qr',
+      qrCells, showMine: s.qrTab === 'mine', showScan: s.qrTab === 'scan', scanned: s.scanned, notScanned: !s.scanned,
+      mineTabBg: s.qrTab === 'mine' ? 'rgba(255,255,255,0.32)' : 'transparent', scanTabBg: s.qrTab === 'scan' ? 'rgba(255,255,255,0.32)' : 'transparent',
+      goQr: go('qr', { qrTab: 'mine', scanned: false }), tabMine: () => this.setState({ qrTab: 'mine' }), tabScan: () => this.setState({ qrTab: 'scan', scanned: false }),
+      doScan: () => this.setState({ scanned: true }), startChat: go('chat', { chat: 'Νίκος', pgp: true }),
+      chats, chatName: s.chat, sheet: s.sheet, sources, draft: s.draft,
+      pgpChip: s.pgp ? 'PGP on' : 'PGP off', pgpShort: s.pgp ? 'End-to-end encrypted' : 'Encrypted in transit',
+      pgpChipBg: s.pgp ? cur.accent : 'rgba(255,255,255,0.12)',
+      pgpBanner: s.pgp ? 'PGP on: only the people in this chat can read it. Keys checked by QR code.' : 'PGP off: protected in transit (TLS) and by your cloud provider, who could technically read it.',
+      msgs: s.msgs.map((m) => ({ ...m, isText: !m.attach, align: m.mine ? 'flex-end' : 'flex-start', bg: m.mine ? cur.accent + 'B3' : 'rgba(255,255,255,0.2)' })),
+      bgList: Object.keys(BG).map((k) => ({ label: BG[k].label, swatch: BG[k].css, ring: k === s.bg ? '3px solid #ffffff' : '1px solid rgba(255,255,255,0.4)', pick: () => this.setState({ bg: k }) })),
+      goList: go('list'), goSettings: go('settings'),
+      togglePgp: () => this.setState({ pgp: !s.pgp }),
+      openSheet: () => this.setState({ sheet: true }), closeSheet: () => this.setState({ sheet: false }),
+      fromPhotos: () => { const ks = Object.keys(BG); this.setState({ bg: ks[(ks.indexOf(s.bg) + 1) % ks.length] }); },
+      typeDraft: (e) => this.setState({ draft: e.target.value }),
+      send: (e) => { e.preventDefault(); const t = s.draft.trim(); if (!t) return; this.setState({ msgs: s.msgs.concat([{ id: Date.now(), text: t, mine: true }]), draft: '' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

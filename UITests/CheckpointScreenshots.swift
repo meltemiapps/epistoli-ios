@@ -40,11 +40,6 @@ final class CheckpointScreenshots: XCTestCase {
         button.tap()
     }
 
-    private func closeSheet() {
-        let close = app.buttons["Close"].firstMatch
-        if close.exists { close.tap() }
-    }
-
     func test1_OnboardAndShowMyCode() throws {
         let name = try XCTUnwrap(env["USER_NAME"])
         let field = element("onboarding.name")
@@ -81,7 +76,7 @@ final class CheckpointScreenshots: XCTestCase {
         shot("\(tag)-4-contact")
         app.swipeUp()
         shot("\(tag)-5-contact-scrolled")
-        app.navigationBars.buttons.firstMatch.tap()
+        tap("header.back")
         sleep(1)
         shot("\(tag)-6-list")
     }
@@ -91,7 +86,7 @@ final class CheckpointScreenshots: XCTestCase {
         tap("settings.debug.newphone")
         sleep(1)
         shot("newphone-1-settings")
-        app.buttons["Done"].firstMatch.tap()
+        tap("header.back")
         openKeyExchange("My code")
         XCTAssertTrue(element("mycode.qr").waitForExistence(timeout: 5))
         shot("newphone-2-my-code")
@@ -107,7 +102,7 @@ final class CheckpointScreenshots: XCTestCase {
         app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'GopenPGP'")).firstMatch.tap()
         sleep(1)
         shot("ack-2-gopenpgp")
-        app.navigationBars.buttons.firstMatch.tap()
+        tap("header.back")
         sleep(1)
         app.swipeUp()
         shot("ack-3-list-scrolled")
