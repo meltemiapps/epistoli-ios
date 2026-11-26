@@ -39,6 +39,7 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: $(BRAND_DISPLAY_NAME)
+        BrandASCIIName: $(BRAND_ASCII_NAME)
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         ITSAppUsesNonExemptEncryption: true
