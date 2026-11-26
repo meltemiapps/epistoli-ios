@@ -94,6 +94,14 @@ import Testing
         #expect(fp.grouped == "0123 4567 89AB CDEF 0123 4567 89AB CDEF 0123 4567")
     }
 
+    @Test func binaryImportAcceptsPublicRejectsPrivate() throws {
+        let (priv, pub) = try identity("me")
+        let imported = try SealedCrypto.importPublicKey(pub.data)
+        #expect(imported == pub)
+        #expect(throws: SealedCryptoError.self) { try SealedCrypto.importPublicKey(priv.data) }
+        #expect(throws: SealedCryptoError.self) { try SealedCrypto.importPublicKey(Data("junk".utf8)) }
+    }
+
     @Test func libraryVersionIsPinned() {
         #expect(SealedCrypto.libraryVersion == "3.5.2")
     }

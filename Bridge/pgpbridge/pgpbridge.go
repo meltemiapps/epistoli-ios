@@ -109,6 +109,24 @@ func ImportArmoredPublicKey(armored string) ([]byte, error) {
 	return k.GetPublicKey()
 }
 
+// ImportPublicKey parses binary public key packets received from someone else (for example in a
+// contact code). Like ImportArmoredPublicKey it rejects private keys and keys that cannot encrypt
+// and verify, and it returns the key re-serialised as public packets only.
+func ImportPublicKey(publicKey []byte) ([]byte, error) {
+	k, err := crypto.NewKey(publicKey)
+	if err != nil {
+		return nil, keyErr("cannot parse key: %v", err)
+	}
+	if k.IsPrivate() {
+		return nil, keyErr("refusing to import a private key")
+	}
+	now := time.Now().Unix()
+	if !k.CanEncrypt(now) || !k.CanVerify(now) {
+		return nil, keyErr("key cannot encrypt and verify (expired, revoked or wrong usage)")
+	}
+	return k.GetPublicKey()
+}
+
 // Recipients collects public keys to encrypt to.
 type Recipients struct {
 	ring *crypto.KeyRing

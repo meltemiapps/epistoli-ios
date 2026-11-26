@@ -14,6 +14,10 @@ packages:
     path: Packages/SealedCrypto
   SealedStorage:
     path: Packages/SealedStorage
+  KeyExchange:
+    path: Packages/KeyExchange
+  GRDB:
+    path: Vendor/GRDB.swift
 targets:
   Epistoli:
     type: application
@@ -27,6 +31,10 @@ targets:
       - package: EpistoliCore
       - package: SealedCrypto
       - package: SealedStorage
+      - package: KeyExchange
+        product: KeyExchange
+      - package: GRDB
+        product: GRDB
     info:
       path: App/Info.plist
       properties:
@@ -59,9 +67,23 @@ targets:
       - AppTests
     dependencies:
       - target: Epistoli
+      - package: KeyExchange
+        product: KeyExchangeTestSupport
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.meltemiapps.epistoli.tests
+        GENERATE_INFOPLIST_FILE: YES
+  EpistoliUITests:
+    # Checkpoint screenshots on two simulators (scripts/checkpoint_c.sh). Not run in CI.
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - UITests
+    dependencies:
+      - target: Epistoli
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.meltemiapps.epistoli.uitests
         GENERATE_INFOPLIST_FILE: YES
 schemes:
   Epistoli:
@@ -72,3 +94,11 @@ schemes:
     test:
       targets:
         - EpistoliTests
+  EpistoliScreenshots:
+    build:
+      targets:
+        Epistoli: all
+        EpistoliUITests: [test]
+    test:
+      targets:
+        - EpistoliUITests
